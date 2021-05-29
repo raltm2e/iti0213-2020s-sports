@@ -12,6 +12,7 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import ee.taltech.sportsapp.databinding.ActivityMapsBinding
+import ee.taltech.sportsapp.other.Constants.ACTION_SHOW_TRACKING_FRAGMENT
 import ee.taltech.sportsapp.other.Constants.ACTION_START_OR_RESUME_SERVICE
 import ee.taltech.sportsapp.services.TrackingService
 
@@ -30,6 +31,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
+
+        navigateToTrackingFragmentIfNeeded(intent)
 
         // Moving between activities
         val compassButton = findViewById<Button>(R.id.buttonCompass)
@@ -53,11 +56,22 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        navigateToTrackingFragmentIfNeeded(intent)
+    }
+
     private fun sendCommandToService(action: String) =
         Intent(this, TrackingService::class.java).also {
             it.action = action
             this.startService(it)
         }
+
+    private fun navigateToTrackingFragmentIfNeeded(intent: Intent?) {
+        if(intent?.action == ACTION_SHOW_TRACKING_FRAGMENT) {
+            startActivity(intent)
+        }
+    }
 
 
     /**
