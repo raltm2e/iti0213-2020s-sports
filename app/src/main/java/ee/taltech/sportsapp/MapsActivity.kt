@@ -1,7 +1,9 @@
 package ee.taltech.sportsapp
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.Button
 
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -26,6 +28,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
+
+        val compassButton = findViewById<Button>(R.id.buttonCompass)
+        compassButton.setOnClickListener{
+            val intent = Intent(this, CompassActivity::class.java)
+            startActivity(intent)
+        }
     }
 
     /**
