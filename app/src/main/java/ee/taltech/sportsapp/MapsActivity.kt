@@ -29,14 +29,20 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
+        // Moving between activities
         val compassButton = findViewById<Button>(R.id.buttonCompass)
         compassButton.setOnClickListener{
             val intent = Intent(this, CompassActivity::class.java)
             startActivity(intent)
         }
-        val sessionsButton1 = findViewById<Button>(R.id.buttonSessions)
-        sessionsButton1.setOnClickListener{
+        val sessionsButton = findViewById<Button>(R.id.buttonSessions)
+        sessionsButton.setOnClickListener{
             val intent = Intent(this, SessionsActivity::class.java)
+            startActivity(intent)
+        }
+        val optionsButton = findViewById<Button>(R.id.buttonOptions)
+        optionsButton.setOnClickListener{
+            val intent = Intent(this, OptionsActivity::class.java)
             startActivity(intent)
         }
     }
