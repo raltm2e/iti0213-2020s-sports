@@ -12,6 +12,8 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import ee.taltech.sportsapp.databinding.ActivityMapsBinding
+import ee.taltech.sportsapp.other.Constants.ACTION_START_OR_RESUME_SERVICE
+import ee.taltech.sportsapp.services.TrackingService
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
@@ -31,21 +33,32 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         // Moving between activities
         val compassButton = findViewById<Button>(R.id.buttonCompass)
-        compassButton.setOnClickListener{
+        compassButton.setOnClickListener {
             val intent = Intent(this, CompassActivity::class.java)
             startActivity(intent)
         }
         val sessionsButton = findViewById<Button>(R.id.buttonSessions)
-        sessionsButton.setOnClickListener{
+        sessionsButton.setOnClickListener {
             val intent = Intent(this, SessionsActivity::class.java)
             startActivity(intent)
         }
         val optionsButton = findViewById<Button>(R.id.buttonOptions)
-        optionsButton.setOnClickListener{
+        optionsButton.setOnClickListener {
             val intent = Intent(this, OptionsActivity::class.java)
             startActivity(intent)
         }
+        val toggleRunButton = findViewById<Button>(R.id.buttonToggleRun)
+        toggleRunButton.setOnClickListener {
+            sendCommandToService(ACTION_START_OR_RESUME_SERVICE)
+        }
     }
+
+    private fun sendCommandToService(action: String) =
+        Intent(this, TrackingService::class.java).also {
+            it.action = action
+            this.startService(it)
+        }
+
 
     /**
      * Manipulates the map once available.
