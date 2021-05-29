@@ -73,10 +73,12 @@ class TrackingService : LifecycleService() {
                         isFirstRun = false
                     } else {
                         Log.d(loggingTag, "Resuming service...")
+                        startForegroundService()
                     }
                 }
                 ACTION_PAUSE_SERVICE -> {
                     Log.d(loggingTag, "Paused service")
+                    pauseService()
                 }
                 ACTION_STOP_SERVICE -> {
                     Log.d(loggingTag, "Stopped service")
@@ -86,8 +88,11 @@ class TrackingService : LifecycleService() {
                 }
             }
         }
-
         return super.onStartCommand(intent, flags, startId)
+    }
+
+    private fun pauseService() {
+        isTracking.postValue(false)
     }
 
     private fun updateLocationTracking(isTracking: Boolean) {
@@ -160,7 +165,6 @@ class TrackingService : LifecycleService() {
 
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         createNotificationChannel(notificationManager)
-        Log.d(loggingTag, "Starting foreground service")
 
         val notificationBuilder = NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
             .setAutoCancel(false)
@@ -170,9 +174,7 @@ class TrackingService : LifecycleService() {
             .setContentText("00:00:00")
             .setContentIntent(getMainActivityPendingIntent())
 
-        Log.d(loggingTag, "Made notificationbuilder")
         startForeground(NOTIFICATION_ID, notificationBuilder.build())
-        Log.d(loggingTag, "Created notification")
     }
 
     private fun getMainActivityPendingIntent() = PendingIntent.getActivity(
