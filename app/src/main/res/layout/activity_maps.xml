@@ -23,17 +23,61 @@
         android:id="@+id/linearLayout"
         android:layout_width="0dp"
         android:layout_height="60dp"
+        android:layout_marginTop="4dp"
         android:orientation="horizontal"
+        map:layout_constraintBottom_toTopOf="@+id/map"
         map:layout_constraintEnd_toEndOf="parent"
         map:layout_constraintStart_toStartOf="parent"
-        map:layout_constraintTop_toTopOf="parent"></LinearLayout>
+        map:layout_constraintTop_toTopOf="parent">
+
+        <Button
+            android:id="@+id/buttonNorth"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:text="North-Up"
+            android:textSize="12sp" />
+
+        <Button
+            android:id="@+id/buttonCompass"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:text="Compass"
+            android:textSize="12sp" />
+
+        <Button
+            android:id="@+id/buttonSessions"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:text="Sessions"
+            android:textSize="12sp" />
+
+        <Button
+            android:id="@+id/buttonOptions"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:text="Options"
+            android:textSize="12sp" />
+    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/linearLayout2"
         android:layout_width="0dp"
-        android:layout_height="60dp"
+        android:layout_height="120dp"
         android:orientation="horizontal"
         map:layout_constraintBottom_toBottomOf="parent"
         map:layout_constraintEnd_toEndOf="parent"
-        map:layout_constraintStart_toStartOf="parent"></LinearLayout>
+        map:layout_constraintStart_toStartOf="parent"
+        map:layout_constraintTop_toBottomOf="@+id/map"></LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
