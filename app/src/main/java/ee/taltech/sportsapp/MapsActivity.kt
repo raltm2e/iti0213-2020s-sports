@@ -10,9 +10,7 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
-import com.google.android.gms.maps.model.PolylineOptions
+import com.google.android.gms.maps.model.*
 import ee.taltech.sportsapp.databinding.ActivityMapsBinding
 import ee.taltech.sportsapp.other.Constants.ACTION_PAUSE_SERVICE
 import ee.taltech.sportsapp.other.Constants.ACTION_SHOW_TRACKING_FRAGMENT
@@ -24,13 +22,19 @@ import ee.taltech.sportsapp.services.Polyline
 import ee.taltech.sportsapp.services.TrackingService
 import kotlinx.android.synthetic.main.activity_maps.*
 
-class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
+class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLongClickListener {
+
+    private var logtag = "MapsActivity"
 
     private lateinit var map: GoogleMap
     private lateinit var binding: ActivityMapsBinding
 
     private var isTracking = false
     private var pathPoints = mutableListOf<Polyline>()
+    private var checkPoints = mutableListOf<LatLng>()
+    private lateinit var wayPoint: Marker
+    private var wpExists = false
+    private var wpPressed = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -67,6 +71,39 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         toggleRunButton.setOnClickListener {
             toggleRun()
         }
+        val toggleCPButton = findViewById<Button>(R.id.buttonAddCP)
+        toggleCPButton.setOnClickListener {
+            addCheckpoint()
+        }
+        val toggleWPButton = findViewById<Button>(R.id.buttonAddWP)
+        toggleWPButton.setOnClickListener {
+            wpPressed = true
+        }
+    }
+
+    override fun onMapLongClick(latlng: LatLng) {
+        if (wpPressed) {
+            if (wpExists) {
+                wayPoint.remove()
+            }
+            val location = LatLng(latlng.latitude, latlng.longitude)
+            val markerOptions = MarkerOptions()
+                .position(location)
+                .icon(BitmapDescriptorFactory
+                    .defaultMarker(BitmapDescriptorFactory.HUE_VIOLET))
+            wayPoint = map.addMarker(markerOptions)
+            wpExists = true
+        }
+        wpPressed = false
+    }
+
+    private fun addCheckpoint() {
+        val lastLatLng = pathPoints.last().last()
+        checkPoints.add(lastLatLng)
+        map.addMarker(MarkerOptions()
+            .position(lastLatLng)
+            .icon(BitmapDescriptorFactory
+                .defaultMarker(BitmapDescriptorFactory.HUE_BLUE)))
     }
 
     override fun onNewIntent(intent: Intent?) {
@@ -168,5 +205,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         val sydney = LatLng(-34.0, 151.0)
         map.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
         map.moveCamera(CameraUpdateFactory.newLatLng(sydney))
+        map.setOnMapLongClickListener(this)
     }
 }
