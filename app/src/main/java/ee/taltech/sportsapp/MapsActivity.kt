@@ -98,12 +98,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLon
     }
 
     private fun addCheckpoint() {
-        val lastLatLng = pathPoints.last().last()
-        checkPoints.add(lastLatLng)
-        map.addMarker(MarkerOptions()
-            .position(lastLatLng)
-            .icon(BitmapDescriptorFactory
-                .defaultMarker(BitmapDescriptorFactory.HUE_BLUE)))
+        if (pathPoints.isNotEmpty()) {
+            val lastLatLng = pathPoints.last().last()
+            checkPoints.add(lastLatLng)
+            map.addMarker(MarkerOptions()
+                .position(lastLatLng)
+                .icon(BitmapDescriptorFactory
+                    .defaultMarker(BitmapDescriptorFactory.HUE_BLUE)))
+        }
     }
 
     override fun onNewIntent(intent: Intent?) {
