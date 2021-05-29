@@ -34,6 +34,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             val intent = Intent(this, CompassActivity::class.java)
             startActivity(intent)
         }
+        val sessionsButton1 = findViewById<Button>(R.id.buttonSessions)
+        sessionsButton1.setOnClickListener{
+            val intent = Intent(this, SessionsActivity::class.java)
+            startActivity(intent)
+        }
     }
 
     /**
