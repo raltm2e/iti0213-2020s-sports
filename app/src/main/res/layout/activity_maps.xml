@@ -98,19 +98,19 @@
                 android:id="@+id/textViewDistanceCovered"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="TextView" />
+                android:text="0m" />
 
             <TextView
                 android:id="@+id/textViewSessionDuration"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="TextView" />
+                android:text="00:00:00" />
 
             <TextView
                 android:id="@+id/textViewAverageSpeed"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="TextView" />
+                android:text="--.--min/km" />
 
         </LinearLayout>
 
@@ -128,22 +128,22 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/textView4"
+                android:id="@+id/textViewDistanceFromCP"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="TextView" />
+                android:text="0m" />
 
             <TextView
-                android:id="@+id/textView5"
+                android:id="@+id/textViewDirectFromCP"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="TextView" />
+                android:text="0m" />
 
             <TextView
-                android:id="@+id/textView6"
+                android:id="@+id/textViewAverageSpeed1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="TextView" />
+                android:text="00.00km/h" />
         </LinearLayout>
 
         <Button
@@ -160,22 +160,22 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/textView7"
+                android:id="@+id/textViewDistanceFromWP"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="TextView" />
+                android:text="0m" />
 
             <TextView
-                android:id="@+id/textView8"
+                android:id="@+id/textViewDirectFromWP"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="TextView" />
+                android:text="0m" />
 
             <TextView
-                android:id="@+id/textView9"
+                android:id="@+id/textViewAverageSpeed2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="TextView" />
+                android:text="00.00km/h" />
         </LinearLayout>
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

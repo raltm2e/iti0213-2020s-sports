@@ -3,6 +3,7 @@ package ee.taltech.sportsapp
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
@@ -33,7 +34,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLon
 
     private var isTracking = false
     private var pathPoints = mutableListOf<Polyline>()
-    private var checkPoints = mutableListOf<LatLng>()
+    private var checkPoints = ArrayList<LatLng>()
+    private var metersOnNewCP: Double = 0.0
     private lateinit var wayPoint: Marker
     private var wpExists = false
     private var wpPressed = false
@@ -109,6 +111,43 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLon
                 .position(lastLatLng)
                 .icon(BitmapDescriptorFactory
                     .defaultMarker(BitmapDescriptorFactory.HUE_BLUE)))
+            metersOnNewCP = TrackingService.travelledMeters
+        }
+    }
+
+    private fun updateCPDistance() {
+        if (checkPoints.isNotEmpty()) {
+            val distanceFromCP = (TrackingService.travelledMeters - metersOnNewCP).roundToInt()
+            val textviewValue = metersToKilometers(distanceFromCP)
+            textViewDistanceFromCP.text = textviewValue
+            textViewDistanceFromWP.text = textviewValue
+        }
+        updateCPDirect()
+        updateWPDirect()
+    }
+
+    private fun updateCPDirect() {
+        if (checkPoints.isNotEmpty()) {
+            val lastLatLng = pathPoints.last().last()
+            val lastCPLatLng = checkPoints.last()
+
+            val CPDirect = TrackingUtility.getDistanceBetweenLocations(lastLatLng, lastCPLatLng).toInt()
+            val textviewValue = metersToKilometers(CPDirect)
+            Log.d(logtag, "CP direct: $textviewValue")
+            textViewDirectFromCP.text = textviewValue
+        }
+    }
+
+    private fun updateWPDirect() {
+        Log.d(logtag, "Updating WP")
+        if (wpExists) {
+            Log.d(logtag, "WP exists")
+            val lastLatLng = pathPoints.last().last()
+            val lastWPLatLng = wayPoint.position
+
+            val WPDirect = TrackingUtility.getDistanceBetweenLocations(lastLatLng, lastWPLatLng).toInt()
+            val textviewValue = metersToKilometers(WPDirect)
+            textViewDirectFromWP.text = textviewValue
         }
     }
 
@@ -137,14 +176,20 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLon
     }
 
     private fun updateDistanceTravelled() {
-        var meters = TrackingService.travelledMeters.roundToInt()
+        val meters = TrackingService.travelledMeters.roundToInt()
+        textViewDistanceCovered.text = metersToKilometers(meters)
+        updatePace()
+        updateCPDistance()
+    }
+
+    private fun metersToKilometers(inputMeters: Int): String {
+        var meters = inputMeters
         var newText = meters.toString() + "m"
         if (meters > 1000) {
             meters /= 1000
             newText = meters.toString() + "km"
         }
-        textViewDistanceCovered.text = newText
-        updatePace()
+        return newText
     }
 
     private fun updatePace() {

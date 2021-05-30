@@ -1,5 +1,7 @@
 package ee.taltech.sportsapp.other
 
+import android.location.Location
+import com.google.android.gms.maps.model.LatLng
 import java.util.concurrent.TimeUnit
 
 object TrackingUtility {
@@ -22,5 +24,17 @@ object TrackingUtility {
                 "${if(minutes<10) "0" else ""}$minutes:" +
                 "${if(seconds<10) "0" else ""}$seconds:" +
                 "${if(milliseconds<10) "0" else ""}$milliseconds"
+    }
+
+    fun getDistanceBetweenLocations(latlng1: LatLng, latlng2: LatLng): Float {
+        val location1 = Location("")
+        location1.latitude = latlng1.latitude
+        location1.longitude = latlng1.longitude
+
+        val location2 = Location("")
+        location2.latitude = latlng2.latitude
+        location2.longitude = latlng2.longitude
+
+        return location2.distanceTo(location1)
     }
 }
