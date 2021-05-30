@@ -3,6 +3,7 @@ package ee.taltech.sportsapp
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
@@ -22,6 +23,7 @@ import ee.taltech.sportsapp.other.TrackingUtility
 import ee.taltech.sportsapp.services.Polyline
 import ee.taltech.sportsapp.services.TrackingService
 import kotlinx.android.synthetic.main.activity_maps.*
+import kotlin.math.pow
 import kotlin.math.roundToInt
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLongClickListener {
@@ -117,22 +119,22 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLon
     private fun updateCPDistance() {
         if (checkPoints.isNotEmpty()) {
             val distanceFromCP = (TrackingService.travelledMeters - metersOnNewCP).roundToInt()
-            val textviewValue = metersToKilometers(distanceFromCP)
+            val textviewValue = TrackingUtility.metersToKilometers(distanceFromCP)
             textViewDistanceFromCP.text = textviewValue
             textViewDistanceFromWP.text = textviewValue
+            if (pathPoints.last().isNotEmpty()) {
+                updateCPDirect()
+                updateWPDirect()
+            }
         }
-        updateCPDirect()
-        updateWPDirect()
     }
 
     private fun updateCPDirect() {
-        if (checkPoints.isNotEmpty()) {
-            val lastLatLng = pathPoints.last().last()
-            val lastCPLatLng = checkPoints.last()
-            val CPDirect = TrackingUtility.getDistanceBetweenLocations(lastLatLng, lastCPLatLng).toInt()
-            val textviewValue = metersToKilometers(CPDirect)
-            textViewDirectFromCP.text = textviewValue
-        }
+        val lastLatLng = pathPoints.last().last()
+        val lastCPLatLng = checkPoints.last()
+        val CPDirect = TrackingUtility.getDistanceBetweenLocations(lastLatLng, lastCPLatLng).toInt()
+        val textviewValue = TrackingUtility.metersToKilometers(CPDirect)
+        textViewDirectFromCP.text = textviewValue
     }
 
     private fun updateWPDirect() {
@@ -140,7 +142,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLon
             val lastLatLng = pathPoints.last().last()
             val lastWPLatLng = wayPoint.position
             val WPDirect = TrackingUtility.getDistanceBetweenLocations(lastLatLng, lastWPLatLng).toInt()
-            val textviewValue = metersToKilometers(WPDirect)
+            val textviewValue = TrackingUtility.metersToKilometers(WPDirect)
             textViewDirectFromWP.text = textviewValue
         }
     }
@@ -171,24 +173,26 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLon
 
     private fun updateDistanceTravelled() {
         val meters = TrackingService.travelledMeters.roundToInt()
-        textViewDistanceCovered.text = metersToKilometers(meters)
+        textViewDistanceCovered.text = TrackingUtility.metersToKilometers(meters)
         updatePace()
         updateCPDistance()
     }
 
-    private fun metersToKilometers(inputMeters: Int): String {
-        var meters = inputMeters
-        var newText = meters.toString() + "m"
-        if (meters > 1000) {
-            meters /= 1000
-            newText = meters.toString() + "km"
+    private fun updatePace() {
+        if (TrackingService.avgPace < 99.9 && TrackingService.avgPace > 0.0) {
+            val formattedValue = "%.2f".format(TrackingService.avgPace) + "min/km"
+            textViewAverageSpeed.text = formattedValue
+            updateSpeed()
         }
-        return newText
     }
 
-    private fun updatePace() {
-        val formattedValue = "%.2f".format(TrackingService.avgPace) + "min/km"
-        textViewAverageSpeed.text = formattedValue
+    private fun updateSpeed() {
+        val formattedValue = "%.2f".format(TrackingService.avgPace).toFloat()
+        val speed = (formattedValue / 60).pow(-1) // min/km to km/hour
+        Log.d(logtag, "Speed: $speed")
+        val textfieldValue = speed.toString() + "km/h"
+        textViewAverageSpeed1.text = textfieldValue
+        textViewAverageSpeed2.text = textfieldValue
     }
 
     private fun toggleRun() {

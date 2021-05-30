@@ -37,4 +37,16 @@ object TrackingUtility {
 
         return location2.distanceTo(location1)
     }
+
+    fun metersToKilometers(inputMeters: Int): String {
+        var meters = inputMeters
+        var newText = meters.toString() + "m"
+        if (meters > 1000) {
+            var metersasDouble = meters.toDouble()
+            metersasDouble /= 1000.0
+            val formattedValue = "%.2f".format(metersasDouble)
+            newText = formattedValue.toString() + "km"
+        }
+        return newText
+    }
 }
