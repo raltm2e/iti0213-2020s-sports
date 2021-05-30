@@ -58,10 +58,7 @@ class TrackingService : LifecycleService() {
     private var isFirstRun = true
 
     private lateinit var gpsSession: GpsSession
-    private lateinit var sessionId: String
-
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
-
     private val timeRunInSeconds = MutableLiveData<Long>()
 
     lateinit var baseNotificationBuilder: NotificationCompat.Builder
@@ -147,12 +144,6 @@ class TrackingService : LifecycleService() {
     private fun pauseService() {
         isTracking.postValue(false)
         isTimerEnabled = false
-
-        saveTrainingSession()
-    }
-
-    private fun saveTrainingSession() {
-
     }
 
     private fun updateNotificationTrackingState(isTracking: Boolean) {
@@ -223,6 +214,7 @@ class TrackingService : LifecycleService() {
                     for(location in locations) {
                         addPathPoint(location)
                         Log.d(loggingTag, "NEW LOCATION: ${location.latitude}, ${location.longitude}")
+                        TrackingUtility.setLastPathPoint(location)
                     }
                 }
             }
@@ -258,6 +250,11 @@ class TrackingService : LifecycleService() {
         Log.d(loggingTag, "Updating pace: $avgPace min/km")
     }
 
+    private fun addEmptyPolyline() = pathPoints.value?.apply {
+        add(mutableListOf())
+        pathPoints.postValue(this)
+    } ?: pathPoints.postValue(mutableListOf(mutableListOf()))
+
     private fun addPathPoint(location: Location?) {
         location?.let {
             val pos = LatLng(location.latitude, location.longitude)
@@ -266,13 +263,12 @@ class TrackingService : LifecycleService() {
                 pathPoints.postValue(this)
             }
             increaseDistance(pos)
+
+            val queue = Volley.newRequestQueue(this)
+            TrackingUtility.sendLocationData(location, "LOC", queue)
         }
     }
 
-    private fun addEmptyPolyline() = pathPoints.value?.apply {
-        add(mutableListOf())
-        pathPoints.postValue(this)
-    } ?: pathPoints.postValue(mutableListOf(mutableListOf()))
 
     private fun sendStartRequest() {
         val name = LocalDate.now().toString()
@@ -318,7 +314,9 @@ class TrackingService : LifecycleService() {
                 return headers
             }
         }
-        queue.add(request)
+        if (Variables.apiToken.isNotEmpty()) {
+            queue.add(request)
+        }
     }
 
     private fun startForegroundService() {

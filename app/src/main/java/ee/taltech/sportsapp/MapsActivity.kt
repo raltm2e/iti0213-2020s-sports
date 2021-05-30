@@ -1,12 +1,14 @@
 package ee.taltech.sportsapp
 
 import android.content.Intent
+import android.location.Location
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
+import com.android.volley.toolbox.Volley
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -100,6 +102,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLon
                     .defaultMarker(BitmapDescriptorFactory.HUE_VIOLET))
             wayPoint = map.addMarker(markerOptions)
             wpExists = true
+
+            val locationNew = Location("")
+            locationNew.latitude = latlng.latitude
+            locationNew.longitude = latlng.longitude
+            TrackingUtility.sendLocationData(locationNew, "WP", Volley.newRequestQueue(this))
         }
         wpPressed = false
     }
@@ -113,6 +120,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLon
                 .icon(BitmapDescriptorFactory
                     .defaultMarker(BitmapDescriptorFactory.HUE_BLUE)))
             metersOnNewCP = TrackingService.travelledMeters
+
+            TrackingUtility.sendLocationData(TrackingUtility.getLastPathPoint(), "CP", Volley.newRequestQueue(this))
         }
     }
 
