@@ -148,8 +148,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLon
     }
 
     private fun updatePace() {
-        val latestPace = TrackingService.avgPace.toString() + "min/km"
-        textViewAverageSpeed.text = latestPace
+        val formattedValue = "%.2f".format(TrackingService.avgPace) + "min/km"
+        textViewAverageSpeed.text = formattedValue
     }
 
     private fun toggleRun() {

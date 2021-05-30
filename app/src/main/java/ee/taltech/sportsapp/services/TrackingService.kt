@@ -239,7 +239,7 @@ class TrackingService : LifecycleService() {
 
     private fun updateAvgPace() {
         // Minutes per 1 kilometer
-        Log.d(loggingTag, "Seconds: $timeRunInSeconds.value!!, TravelledKM: ${travelledMeters / 1000}")
+        Log.d(loggingTag, "Seconds: ${timeRunInSeconds.value!!}, TravelledKM: ${travelledMeters / 1000}")
         avgPace = (timeRunInSeconds.value!! / travelledMeters) * (1000 / 60) //Convert sec/m to min/km
         Log.d(loggingTag, "Updating pace: $avgPace min/km")
     }
