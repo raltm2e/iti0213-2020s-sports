@@ -144,6 +144,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLon
             newText = meters.toString() + "km"
         }
         textViewDistanceCovered.text = newText
+        updatePace()
+    }
+
+    private fun updatePace() {
+        val latestPace = TrackingService.avgPace.toString() + "min/km"
+        textViewAverageSpeed.text = latestPace
     }
 
     private fun toggleRun() {

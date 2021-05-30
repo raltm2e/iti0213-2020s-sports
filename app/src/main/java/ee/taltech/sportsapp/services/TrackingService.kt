@@ -61,6 +61,7 @@ class TrackingService : LifecycleService() {
         val isTracking = MutableLiveData<Boolean>()
         val pathPoints = MutableLiveData<Polylines>()
         var travelledMeters = 0.0
+        var avgPace = 0.0
     }
 
     private fun postInitialValues() {
@@ -231,8 +232,16 @@ class TrackingService : LifecycleService() {
 
             val smallDistance = previousLocation.distanceTo(thisLocation)
             travelledMeters += smallDistance
+            updateAvgPace()
             Log.d(loggingTag, travelledMeters.toString())
         }
+    }
+
+    private fun updateAvgPace() {
+        // Minutes per 1 kilometer
+        Log.d(loggingTag, "Seconds: $timeRunInSeconds.value!!, TravelledKM: ${travelledMeters / 1000}")
+        avgPace = (timeRunInSeconds.value!! / travelledMeters) * (1000 / 60) //Convert sec/m to min/km
+        Log.d(loggingTag, "Updating pace: $avgPace min/km")
     }
 
     private fun addPathPoint(location: Location?) {

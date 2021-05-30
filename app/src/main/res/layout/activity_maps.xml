@@ -48,7 +48,7 @@
             android:insetTop="0dp"
             android:insetBottom="0dp"
             android:text="Compass"
-            android:textSize="12sp"/>
+            android:textSize="12sp" />
 
         <Button
             android:id="@+id/buttonSessions"
@@ -84,7 +84,7 @@
         <Button
             android:id="@+id/buttonToggleRun"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight="1"
             map:icon="@android:drawable/ic_media_play" />
 
@@ -117,7 +117,7 @@
         <Button
             android:id="@+id/buttonAddCP"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight="1"
             map:icon="@android:drawable/ic_menu_myplaces" />
 
@@ -149,7 +149,7 @@
         <Button
             android:id="@+id/buttonAddWP"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight="1"
             map:icon="@android:drawable/ic_menu_directions" />
 
