@@ -3,7 +3,6 @@ package ee.taltech.sportsapp
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
@@ -130,21 +129,16 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLon
         if (checkPoints.isNotEmpty()) {
             val lastLatLng = pathPoints.last().last()
             val lastCPLatLng = checkPoints.last()
-
             val CPDirect = TrackingUtility.getDistanceBetweenLocations(lastLatLng, lastCPLatLng).toInt()
             val textviewValue = metersToKilometers(CPDirect)
-            Log.d(logtag, "CP direct: $textviewValue")
             textViewDirectFromCP.text = textviewValue
         }
     }
 
     private fun updateWPDirect() {
-        Log.d(logtag, "Updating WP")
         if (wpExists) {
-            Log.d(logtag, "WP exists")
             val lastLatLng = pathPoints.last().last()
             val lastWPLatLng = wayPoint.position
-
             val WPDirect = TrackingUtility.getDistanceBetweenLocations(lastLatLng, lastWPLatLng).toInt()
             val textviewValue = metersToKilometers(WPDirect)
             textViewDirectFromWP.text = textviewValue
