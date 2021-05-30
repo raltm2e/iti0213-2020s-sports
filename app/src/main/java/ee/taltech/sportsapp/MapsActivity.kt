@@ -1,6 +1,5 @@
 package ee.taltech.sportsapp
 
-import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -206,14 +205,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLon
         }
     }
 
-    @SuppressLint("SetTextI18n")
     private fun updateTracking(isTracking: Boolean) {
         this.isTracking = isTracking
         if(!isTracking) {
-            buttonToggleRun.text = "Start"
-
+            buttonToggleRun.setBackgroundResource(android.R.drawable.ic_media_play)
         } else {
-            buttonToggleRun.text = "Stop"
+            buttonToggleRun.setBackgroundResource(android.R.drawable.ic_media_pause)
         }
     }
 

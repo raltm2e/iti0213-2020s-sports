@@ -86,7 +86,7 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            map:icon="@android:drawable/ic_media_play" />
+            android:background="@android:drawable/ic_media_play" />
 
         <LinearLayout
             android:layout_width="0dp"

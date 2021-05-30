@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
 import ee.taltech.sportsapp.other.Constants
+import ee.taltech.sportsapp.other.Variables
 import kotlinx.android.synthetic.main.activity_options.*
 import org.json.JSONObject
 
@@ -21,8 +22,6 @@ class OptionsActivity : AppCompatActivity() {
     lateinit var password: String
     lateinit var lastname: String
     lateinit var firstname: String
-
-    lateinit var token: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -134,7 +133,7 @@ class OptionsActivity : AppCompatActivity() {
             { response ->
                 try {
                     Toast.makeText(this, "Logged in", Toast.LENGTH_SHORT).show()
-                    token = response.getString("token")
+                    Variables.apiToken = response.getString("token")
                 }catch (e:Exception){
                     Log.d(logtag, e.toString())
                 }
@@ -169,7 +168,7 @@ class OptionsActivity : AppCompatActivity() {
             { response ->
                 try {
                     Toast.makeText(this, "Registered", Toast.LENGTH_SHORT).show()
-                    token = response.getString("token")
+                    Variables.apiToken = response.getString("token")
                 }catch (e:Exception){
                     Log.d(logtag, e.toString())
                 }

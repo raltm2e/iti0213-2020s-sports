@@ -12,11 +12,14 @@ import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Looper
 import android.util.Log
+import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
+import com.android.volley.toolbox.JsonObjectRequest
+import com.android.volley.toolbox.Volley
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -26,10 +29,11 @@ import com.google.android.gms.maps.model.LatLng
 import ee.taltech.sportsapp.MapsActivity
 import ee.taltech.sportsapp.R
 import ee.taltech.sportsapp.di.ServiceModule
+import ee.taltech.sportsapp.models.GpsSession
+import ee.taltech.sportsapp.other.Constants
 import ee.taltech.sportsapp.other.Constants.ACTION_PAUSE_SERVICE
 import ee.taltech.sportsapp.other.Constants.ACTION_SHOW_TRACKING_FRAGMENT
 import ee.taltech.sportsapp.other.Constants.ACTION_START_OR_RESUME_SERVICE
-import ee.taltech.sportsapp.other.Constants.ACTION_STOP_SERVICE
 import ee.taltech.sportsapp.other.Constants.FASTEST_LOCATION_INTERVAL
 import ee.taltech.sportsapp.other.Constants.LOCATION_UPDATE_INTERVAL
 import ee.taltech.sportsapp.other.Constants.NOTIFICATION_CHANNEL_ID
@@ -37,10 +41,14 @@ import ee.taltech.sportsapp.other.Constants.NOTIFICATION_CHANNEL_NAME
 import ee.taltech.sportsapp.other.Constants.NOTIFICATION_ID
 import ee.taltech.sportsapp.other.Constants.TIMER_UPDATE_INTERVAL
 import ee.taltech.sportsapp.other.TrackingUtility
+import ee.taltech.sportsapp.other.Variables
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.json.JSONObject
+import java.time.LocalDate
+import java.time.LocalDateTime
 
 typealias Polyline = MutableList<LatLng>
 typealias Polylines = MutableList<Polyline>
@@ -48,6 +56,9 @@ typealias Polylines = MutableList<Polyline>
 class TrackingService : LifecycleService() {
     private var loggingTag = "TRACKING"
     private var isFirstRun = true
+
+    private lateinit var gpsSession: GpsSession
+    private lateinit var sessionId: String
 
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
 
@@ -97,11 +108,8 @@ class TrackingService : LifecycleService() {
                     }
                 }
                 ACTION_PAUSE_SERVICE -> {
-                    Log.d(loggingTag, "Paused service")
-                    pauseService()
-                }
-                ACTION_STOP_SERVICE -> {
                     Log.d(loggingTag, "Stopped service")
+                    pauseService()
                 }
                 else -> {
                     Log.d(loggingTag, "Nothing")
@@ -139,6 +147,12 @@ class TrackingService : LifecycleService() {
     private fun pauseService() {
         isTracking.postValue(false)
         isTimerEnabled = false
+
+        saveTrainingSession()
+    }
+
+    private fun saveTrainingSession() {
+
     }
 
     private fun updateNotificationTrackingState(isTracking: Boolean) {
@@ -260,22 +274,62 @@ class TrackingService : LifecycleService() {
         pathPoints.postValue(this)
     } ?: pathPoints.postValue(mutableListOf(mutableListOf()))
 
+    private fun sendStartRequest() {
+        val name = LocalDate.now().toString()
+        val description = name + Constants.EXERCISE_TYPE
+        val recordedAt = LocalDateTime.now().toString()
+        val paceMin = 100
+        val paceMax = 1000
+        gpsSession = GpsSession(name, description, recordedAt, paceMin, paceMax)
+
+        val queue = Volley.newRequestQueue(this)
+        val url = Constants.BASEURL + "GpsSessions"
+
+        val params = HashMap<String,Any>()
+        params["name"] = name
+        params["description"] = description
+        params["recordedAt"] = recordedAt
+        params["paceMin"] = paceMin
+        params["paceMax"] = paceMax
+        val jsonObject = JSONObject(params as Map<*, *>)
+        Log.d(loggingTag, jsonObject.toString(4))
+
+        val request = object: JsonObjectRequest(
+            Method.POST,url,jsonObject,
+            { response ->
+                try {
+                    Toast.makeText(this, "Started", Toast.LENGTH_SHORT).show()
+                    Variables.sessionId = response.getString("id")
+                    Log.d(loggingTag, response.toString(4))
+                }catch (e:Exception){
+                    Log.d(loggingTag, e.toString())
+                }
+            }, {
+                Log.d(loggingTag, "Error in request")
+                Toast.makeText(this, "Error in request", Toast.LENGTH_SHORT).show()
+            })
+
+        {
+            override fun getHeaders(): MutableMap<String, String> {
+                val headers = HashMap<String, String>()
+                val token = Variables.apiToken
+                headers["Content-Type"] = "application/json"
+                headers["Authorization"] = "Bearer $token"
+                return headers
+            }
+        }
+        queue.add(request)
+    }
+
     private fun startForegroundService() {
         startTimer()
         isTracking.postValue(true)
+        sendStartRequest()
 
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         createNotificationChannel(notificationManager)
 
         baseNotificationBuilder = ServiceModule.provideBaseNotificationBuilder(this, getMainActivityPendingIntent())
-
-//        val notificationBuilder = NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
-//            .setAutoCancel(false)
-//            .setOngoing(true)
-//            .setSmallIcon(R.drawable.ic_launcher_foreground)
-//            .setContentTitle("Sportsapp")
-//            .setContentText("00:00:00")
-//            .setContentIntent(getMainActivityPendingIntent())
 
         startForeground(NOTIFICATION_ID, baseNotificationBuilder.build())
 
