@@ -15,4 +15,9 @@
         <item>15 sec</item>
         <item>30 sec</item>
     </string-array>
+    <string-array name="exercises">
+        <item>Running</item>
+        <item>Walking</item>
+        <item>Cycling</item>
+    </string-array>
 </resources>

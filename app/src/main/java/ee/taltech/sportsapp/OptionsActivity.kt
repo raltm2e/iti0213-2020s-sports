@@ -3,7 +3,6 @@ package ee.taltech.sportsapp
 import android.os.Bundle
 import android.view.View
 import android.widget.AdapterView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import ee.taltech.sportsapp.other.Constants
 import kotlinx.android.synthetic.main.activity_options.*
@@ -31,12 +30,12 @@ class OptionsActivity : AppCompatActivity() {
                         Constants.LOCATION_UPDATE_INTERVAL = 30000L
                     }
                 }
-                Toast.makeText(this@OptionsActivity, "GPS changed", Toast.LENGTH_LONG).show()
                 Constants.FASTEST_LOCATION_INTERVAL = Constants.LOCATION_UPDATE_INTERVAL - 2000L
             }
             override fun onNothingSelected(parent: AdapterView<*>?) {
             }
         }
+
         spinnerSyncInterval.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(
                 parent: AdapterView<*>?,
@@ -55,7 +54,19 @@ class OptionsActivity : AppCompatActivity() {
                         Constants.DATA_SYNC_INTERVAL = 30000L
                     }
                 }
-                Toast.makeText(this@OptionsActivity, "Sync changed", Toast.LENGTH_LONG).show()
+            }
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+            }
+        }
+
+        spinnerExercise.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                Constants.EXERCISE_TYPE = parent?.getItemAtPosition(position).toString()
             }
             override fun onNothingSelected(parent: AdapterView<*>?) {
             }

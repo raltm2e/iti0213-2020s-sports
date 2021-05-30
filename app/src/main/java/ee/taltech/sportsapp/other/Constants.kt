@@ -12,8 +12,8 @@ object Constants {
 
     var LOCATION_UPDATE_INTERVAL = 5000L
     var FASTEST_LOCATION_INTERVAL = 3000L
-
     var DATA_SYNC_INTERVAL = 5000L
+    var EXERCISE_TYPE = "Running"
 
     const val POLYLINE_COLOR = Color.RED
     const val POLYLINE_WIDTH = 8f

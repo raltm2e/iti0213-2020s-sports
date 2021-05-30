@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -197,8 +198,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLon
 
     private fun toggleRun() {
         if(isTracking) {
+            Toast.makeText(this, "Paused", Toast.LENGTH_SHORT).show()
             sendCommandToService(ACTION_PAUSE_SERVICE)
         } else {
+            Toast.makeText(this, "Started", Toast.LENGTH_SHORT).show()
             sendCommandToService(ACTION_START_OR_RESUME_SERVICE)
         }
     }
