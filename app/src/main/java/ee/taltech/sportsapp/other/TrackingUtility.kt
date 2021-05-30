@@ -56,13 +56,12 @@ object TrackingUtility {
     }
 
     fun metersToKilometers(inputMeters: Int): String {
-        var meters = inputMeters
-        var newText = meters.toString() + "m"
-        if (meters > 1000) {
-            var metersasDouble = meters.toDouble()
+        var newText = inputMeters.toString() + "m"
+        if (inputMeters > 1000) {
+            var metersasDouble = inputMeters.toDouble()
             metersasDouble /= 1000.0
             val formattedValue = "%.2f".format(metersasDouble)
-            newText = formattedValue.toString() + "km"
+            newText = formattedValue + "km"
         }
         return newText
     }
@@ -83,7 +82,6 @@ object TrackingUtility {
         params["gpsSessionId"] = Variables.sessionId
         params["gpsLocationTypeId"] = locationCode.toString()
         val jsonObject = JSONObject(params as Map<*, *>)
-        Log.d(loggingTag, jsonObject.toString(4))
 
         val request = object: JsonObjectRequest(
             Method.POST,url,jsonObject,
