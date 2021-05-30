@@ -1,6 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Sportsapp</string>
     <string name="title_activity_maps">Map</string>
 
     <string name="compass">Compass</string>
+
+    <string-array name="syncintervals">
+        <item>5 sec</item>
+        <item>15 sec</item>
+        <item>30 sec</item>
+    </string-array>
+    <string-array name="gpsintervals">
+        <item>5 sec</item>
+        <item>15 sec</item>
+        <item>30 sec</item>
+    </string-array>
 </resources>
