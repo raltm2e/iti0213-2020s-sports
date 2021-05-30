@@ -18,6 +18,7 @@ import ee.taltech.sportsapp.other.Constants.ACTION_START_OR_RESUME_SERVICE
 import ee.taltech.sportsapp.other.Constants.MAP_ZOOM
 import ee.taltech.sportsapp.other.Constants.POLYLINE_COLOR
 import ee.taltech.sportsapp.other.Constants.POLYLINE_WIDTH
+import ee.taltech.sportsapp.other.TrackingUtility
 import ee.taltech.sportsapp.services.Polyline
 import ee.taltech.sportsapp.services.TrackingService
 import kotlinx.android.synthetic.main.activity_maps.*
@@ -36,6 +37,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLon
     private lateinit var wayPoint: Marker
     private var wpExists = false
     private var wpPressed = false
+
+    private var curTimeMillis = 0L
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -125,6 +128,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLon
             updateDistanceTravelled()
             moveCameraToUser()
         })
+
+        TrackingService.timeRunInMillis.observe(this, Observer {
+            curTimeMillis = it
+            val formattedTime = TrackingUtility.getFormattedStopWatchTime(curTimeMillis, false)
+            textViewSessionDuration.text = formattedTime
+        })
     }
 
     private fun updateDistanceTravelled() {
@@ -133,10 +142,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLon
         if (meters > 1000) {
             meters /= 1000
             newText = meters.toString() + "km"
-
         }
         textViewDistanceCovered.text = newText
-
     }
 
     private fun toggleRun() {
