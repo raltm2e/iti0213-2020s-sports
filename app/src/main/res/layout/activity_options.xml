@@ -98,9 +98,10 @@
                 android:id="@+id/textViewLogIn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Username/Password"
+                android:text="Log in"
                 android:textAlignment="center"
-                android:textSize="16sp" />
+                android:textSize="16sp"
+                android:layout_weight=".3"/>
 
             <EditText
                 android:id="@+id/editTextTextEmailAddress"
@@ -108,7 +109,9 @@
                 android:layout_height="0dp"
                 android:layout_weight="1"
                 android:ems="10"
-                android:inputType="textEmailAddress" />
+                android:inputType="textEmailAddress"
+                android:textAlignment="center"
+                android:hint="email"/>
 
             <EditText
                 android:id="@+id/editTextTextPassword"
@@ -116,7 +119,9 @@
                 android:layout_height="0dp"
                 android:layout_weight="1"
                 android:ems="10"
-                android:inputType="textPassword" />
+                android:inputType="textPassword"
+                android:textAlignment="center"
+                android:hint="pass"/>
 
             <Button
                 android:id="@+id/buttonLogIn"
@@ -135,23 +140,30 @@
                 android:id="@+id/textViewRegister"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Email/Pass/last-/firstname"
+                android:text="Register new account"
                 android:textAlignment="center"
-                android:textSize="16sp" />
+                android:textSize="16sp"
+                android:layout_weight=".3"/>
 
             <EditText
                 android:id="@+id/editTextTextEmailAddressRegister"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ems="10"
-                android:inputType="textEmailAddress" />
+                android:inputType="textEmailAddress"
+                android:textAlignment="center"
+                android:hint="email"
+                android:layout_weight="1"/>
 
             <EditText
                 android:id="@+id/editTextTextPasswordRegister"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ems="10"
-                android:inputType="textPassword" />
+                android:inputType="textPassword"
+                android:textAlignment="center"
+                android:hint="pass"
+                android:layout_weight="1"/>
 
             <EditText
                 android:id="@+id/editTextTextLastname"
@@ -159,8 +171,9 @@
                 android:layout_height="wrap_content"
                 android:ems="10"
                 android:inputType="textPersonName"
-                android:text="Last name"
-                android:textAlignment="center" />
+                android:textAlignment="center"
+                android:hint="last name"
+                android:layout_weight="1"/>
 
             <EditText
                 android:id="@+id/editTextTextFirstname"
@@ -168,8 +181,9 @@
                 android:layout_height="wrap_content"
                 android:ems="10"
                 android:inputType="textPersonName"
-                android:text="First name"
-                android:textAlignment="center" />
+                android:textAlignment="center"
+                android:hint="first name"
+                android:layout_weight="1" />
 
             <Button
                 android:id="@+id/buttonRegister"
