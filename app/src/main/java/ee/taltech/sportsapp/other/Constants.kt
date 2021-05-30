@@ -15,6 +15,8 @@ object Constants {
     var DATA_SYNC_INTERVAL = 5000L
     var EXERCISE_TYPE = "Running"
 
+    const val BASEURL = "https://sportmap.akaver.com/api/v1.0/"
+
     const val POLYLINE_COLOR = Color.RED
     const val POLYLINE_WIDTH = 8f
     const val MAP_ZOOM = 16f

@@ -71,6 +71,7 @@ class OptionsActivity : AppCompatActivity() {
             override fun onNothingSelected(parent: AdapterView<*>?) {
             }
         }
-
     }
+
+
 }
