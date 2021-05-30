@@ -128,7 +128,15 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLon
     }
 
     private fun updateDistanceTravelled() {
-        textViewDistanceCovered.text = TrackingService.travelledMeters.roundToInt().toString()
+        var meters = TrackingService.travelledMeters.roundToInt()
+        var newText = meters.toString() + "m"
+        if (meters > 1000) {
+            meters /= 1000
+            newText = meters.toString() + "km"
+
+        }
+        textViewDistanceCovered.text = newText
+
     }
 
     private fun toggleRun() {
