@@ -21,6 +21,7 @@ import ee.taltech.sportsapp.other.Constants.POLYLINE_WIDTH
 import ee.taltech.sportsapp.services.Polyline
 import ee.taltech.sportsapp.services.TrackingService
 import kotlinx.android.synthetic.main.activity_maps.*
+import kotlin.math.roundToInt
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLongClickListener {
 
@@ -121,8 +122,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLon
         TrackingService.pathPoints.observe(this, Observer {
             pathPoints = it
             addLatestPolyline()
+            updateDistanceTravelled()
             moveCameraToUser()
         })
+    }
+
+    private fun updateDistanceTravelled() {
+        textViewDistanceCovered.text = TrackingService.travelledMeters.roundToInt().toString()
     }
 
     private fun toggleRun() {
@@ -204,9 +210,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLon
         map = googleMap
 
         // Add a marker in Sydney and move the camera
-        val sydney = LatLng(-34.0, 151.0)
-        map.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
-        map.moveCamera(CameraUpdateFactory.newLatLng(sydney))
+        val estonia = LatLng(59.0, 26.0)
+        //map.addMarker(MarkerOptions().position(estonia).title("Marker in Estonia"))
+        map.moveCamera(CameraUpdateFactory.newLatLng(estonia))
         map.setOnMapLongClickListener(this)
     }
 }

@@ -39,14 +39,15 @@ typealias Polyline = MutableList<LatLng>
 typealias Polylines = MutableList<Polyline>
 
 class TrackingService : LifecycleService() {
-    var loggingTag = "TRACKING"
-    var isFirstRun = true
+    private var loggingTag = "TRACKING"
+    private var isFirstRun = true
 
-    lateinit var fusedLocationProviderClient: FusedLocationProviderClient
+    private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
 
     companion object {
         val isTracking = MutableLiveData<Boolean>()
         val pathPoints = MutableLiveData<Polylines>()
+        var travelledMeters = 0.0
     }
 
     private fun postInitialValues() {
@@ -144,6 +145,27 @@ class TrackingService : LifecycleService() {
         }
     }
 
+    private fun increaseDistance(lastpos: LatLng) {
+        Log.d(loggingTag, "Increasing distance")
+        val thisLocation = Location("")
+        thisLocation.latitude = lastpos.latitude
+        thisLocation.longitude = lastpos.longitude
+
+        if (pathPoints.value?.last()?.size!! > 1) {
+            val previousLatLng = pathPoints.value?.last()?.get(pathPoints.value?.last()!!.size - 2)
+            val previousLocation = Location("")
+
+            if (previousLatLng != null) {
+                previousLocation.latitude = previousLatLng.latitude
+                previousLocation.longitude = previousLatLng.longitude
+            }
+
+            val smallDistance = previousLocation.distanceTo(thisLocation)
+            travelledMeters += smallDistance
+            Log.d(loggingTag, travelledMeters.toString())
+        }
+    }
+
     private fun addPathPoint(location: Location?) {
         location?.let {
             val pos = LatLng(location.latitude, location.longitude)
@@ -151,6 +173,7 @@ class TrackingService : LifecycleService() {
                 last().add(pos)
                 pathPoints.postValue(this)
             }
+            increaseDistance(pos)
         }
     }
 
