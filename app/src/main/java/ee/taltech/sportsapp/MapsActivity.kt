@@ -255,7 +255,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLon
     }
 
     private fun moveCameraToUser() {
-        if(pathPoints.isNotEmpty() && pathPoints.last().isNotEmpty()) {
+        if(pathPoints.isNotEmpty() && pathPoints.last().isNotEmpty() && this::map.isInitialized) {
             map.animateCamera(
                 CameraUpdateFactory.newLatLngZoom(
                     pathPoints.last().last().latlng,
@@ -283,7 +283,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLon
                 .color(polylineColor)
                 .width(POLYLINE_WIDTH)
                 .addAll(polyline)
-            map.addPolyline(polylineOptions)
+            while (!(this::map.isInitialized)) {
+                map.addPolyline(polylineOptions)
+            }
         }
     }
 
@@ -299,7 +301,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLon
                 .width(POLYLINE_WIDTH)
                 .add(preLastLatLng.latlng)
                 .add(lastLatLng.latlng)
-            map.addPolyline(polylineOptions)
+            while (!(this::map.isInitialized)) {
+                map.addPolyline(polylineOptions)
+            }
         }
     }
 
