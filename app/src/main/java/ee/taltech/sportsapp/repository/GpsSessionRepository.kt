@@ -4,11 +4,17 @@ import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.util.Log
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import ee.taltech.sportsapp.models.GpsSession
+import ee.taltech.sportsapp.models.LatLngWithTime
+import java.lang.reflect.Type
 
 class GpsSessionRepository(val context: Context) {
     private lateinit var dbHelper: DbHelper
     private lateinit var db: SQLiteDatabase
+    private var gson = Gson()
+    val typeToken: Type = object : TypeToken<MutableList<MutableList<LatLngWithTime>>>() {}.type
 
     fun open(): GpsSessionRepository {
         Log.d("RobertMapsActivity", "REPOSITORY")
@@ -34,6 +40,7 @@ class GpsSessionRepository(val context: Context) {
         contentValues.put(DbHelper.SESSION_APPUSERID, gpsSession.appUserId)
         contentValues.put(DbHelper.SESSION_NAME, gpsSession.name)
         contentValues.putNull(DbHelper.SESSION_ID)
+        contentValues.put(DbHelper.SESSION_LATLNG, gson.toJson(gpsSession.latLng))
 
         db.insert(DbHelper.TABLE_SESSIONS, null, contentValues)
     }
@@ -42,7 +49,7 @@ class GpsSessionRepository(val context: Context) {
         val persons = ArrayList<GpsSession>()
         val columns = arrayOf(DbHelper.SESSION_DESCRIPTION, DbHelper.SESSION_DISTANCE, DbHelper.SESSION_DURATION,
             DbHelper.SESSION_RECORDED_AT, DbHelper.SESSION_SPEED, DbHelper.SESSION_CLIMB, DbHelper.SESSION_DESCENT,
-            DbHelper.SESSION_GPSSESSIONID, DbHelper.SESSION_APPUSERID, DbHelper.SESSION_NAME, DbHelper.SESSION_ID)
+            DbHelper.SESSION_GPSSESSIONID, DbHelper.SESSION_APPUSERID, DbHelper.SESSION_NAME, DbHelper.SESSION_ID, DbHelper.SESSION_LATLNG)
 
         val cursor = db.query(DbHelper.TABLE_SESSIONS, columns, null, null, null, null, DbHelper.SESSION_ID + ", " + DbHelper.SESSION_NAME)
 
@@ -60,6 +67,7 @@ class GpsSessionRepository(val context: Context) {
                     cursor.getDouble(cursor.getColumnIndex(DbHelper.SESSION_DESCENT)),
                     cursor.getString(cursor.getColumnIndex(DbHelper.SESSION_APPUSERID)),
                     cursor.getString(cursor.getColumnIndex(DbHelper.SESSION_GPSSESSIONID)),
+                    gson.fromJson(cursor.getString(cursor.getColumnIndex(DbHelper.SESSION_LATLNG)), typeToken)
             ))
         }
 

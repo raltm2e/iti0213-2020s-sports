@@ -1,6 +1,10 @@
 package ee.taltech.sportsapp
 
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
+import android.graphics.Color
 import android.location.Location
 import android.os.Bundle
 import android.util.Log
@@ -8,18 +12,22 @@ import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
+import com.google.gson.Gson
 import ee.taltech.sportsapp.databinding.ActivityMapsBinding
+import ee.taltech.sportsapp.models.GpsSession
 import ee.taltech.sportsapp.other.Constants
 import ee.taltech.sportsapp.other.Constants.ACTION_SHOW_TRACKING_FRAGMENT
 import ee.taltech.sportsapp.other.Constants.ACTION_START_OR_RESUME_SERVICE
 import ee.taltech.sportsapp.other.Constants.ACTION_STOP_SERVICE
 import ee.taltech.sportsapp.other.Constants.CYCLING_FAST
 import ee.taltech.sportsapp.other.Constants.CYCLING_SLOW
+import ee.taltech.sportsapp.other.Constants.MAP_SHOW
 import ee.taltech.sportsapp.other.Constants.MAP_ZOOM
 import ee.taltech.sportsapp.other.Constants.POLYLINE_COLOR
 import ee.taltech.sportsapp.other.Constants.POLYLINE_COLOR_FAST
@@ -27,11 +35,14 @@ import ee.taltech.sportsapp.other.Constants.POLYLINE_COLOR_SLOW
 import ee.taltech.sportsapp.other.Constants.POLYLINE_WIDTH
 import ee.taltech.sportsapp.other.Constants.RUNNING_FAST
 import ee.taltech.sportsapp.other.Constants.RUNNING_SLOW
+import ee.taltech.sportsapp.other.Constants.SESSION_DISPLAY
+import ee.taltech.sportsapp.other.Constants.UPDATE_MAP
 import ee.taltech.sportsapp.other.Constants.WALKING_FAST
 import ee.taltech.sportsapp.other.Constants.WALKING_SLOW
 import ee.taltech.sportsapp.other.TrackingUtility
 import ee.taltech.sportsapp.other.TrackingUtility.getSpeedBetweenLocations
 import ee.taltech.sportsapp.other.TrackingUtility.trySendingLocationData
+import ee.taltech.sportsapp.repository.GpsSessionRepository
 import ee.taltech.sportsapp.services.Polyline
 import ee.taltech.sportsapp.services.TrackingService
 import kotlinx.android.synthetic.main.activity_maps.*
@@ -43,6 +54,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLon
     private var logtag = "RobertMapsActivity"
     private lateinit var map: GoogleMap
     private lateinit var binding: ActivityMapsBinding
+    private lateinit var repository: GpsSessionRepository
+    private var showPreviousSession = false
+    private var gson = Gson()
+    private lateinit var sessionToDraw: GpsSession
 
     private var isTracking = false
     private var pathPoints = mutableListOf<Polyline>()
@@ -53,6 +68,20 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLon
     private var wpPressed = false
 
     private var curTimeMillis = 0L
+
+    fun drawMapFromSession() {
+        val lastList = sessionToDraw.latLng.last()
+        for (i in 0..lastList.size - 2) {
+            val firstPoint = lastList[i]
+            val secondPoint = lastList[i + 1]
+            map.addPolyline(PolylineOptions()
+                .add(firstPoint.latlng)
+                .add(secondPoint.latlng)
+                .color(Color.RED)
+                .width(POLYLINE_WIDTH)
+                )
+        }
+    }
 
     private fun resetValues() {
         pathPoints = mutableListOf()
@@ -66,9 +95,21 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLon
         curTimeMillis = 0L
     }
 
+    var previousSessionBroadcastReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent) {
+            showPreviousSession = intent.getBooleanExtra(MAP_SHOW, false)
+            sessionToDraw = gson.fromJson(intent.getStringExtra(SESSION_DISPLAY), GpsSession::class.java)
+            Log.d(logtag, "Should Show Previous Session: ${showPreviousSession.toString()}")
+            drawMapFromSession()
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(logtag, "OnCreate")
         super.onCreate(savedInstanceState)
+
+        LocalBroadcastManager.getInstance(this).registerReceiver(previousSessionBroadcastReceiver, IntentFilter(
+            UPDATE_MAP))
 
         binding = ActivityMapsBinding.inflate(layoutInflater)
         setContentView(binding.root)

@@ -1,5 +1,7 @@
 package ee.taltech.sportsapp.models
 
+import ee.taltech.sportsapp.services.Polylines
+
 data class GpsSession(
     var name: String,
     var description: String,
@@ -11,6 +13,7 @@ data class GpsSession(
     var climb: Double,
     var descent: Double,
     var appUserId: String,
-    var gpsSessionId: String
+    var gpsSessionId: String,
+    var latLng: Polylines
 ) {
 }

@@ -169,7 +169,7 @@ class TrackingService : LifecycleService() {
     private fun endSession() {
         val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX", getDefault())
         repository.add(GpsSession("Nimi", "Randomdesc", formatter.format(Date()), 0,
-            timeRunInSeconds.value!!.toDouble(), avgPace, travelledMeters, 0.0, 0.0, "", Variables.sessionId))
+            timeRunInSeconds.value!!.toDouble(), avgPace, travelledMeters, 0.0, 0.0, "", Variables.sessionId, pathPoints.value!!))
         resetValues()
         repository.close()
     }
