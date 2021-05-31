@@ -3,6 +3,7 @@ package ee.taltech.sportsapp
 import android.content.Intent
 import android.location.Location
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -13,13 +14,17 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import ee.taltech.sportsapp.databinding.ActivityMapsBinding
+import ee.taltech.sportsapp.other.Constants
 import ee.taltech.sportsapp.other.Constants.ACTION_SHOW_TRACKING_FRAGMENT
 import ee.taltech.sportsapp.other.Constants.ACTION_START_OR_RESUME_SERVICE
 import ee.taltech.sportsapp.other.Constants.ACTION_STOP_SERVICE
 import ee.taltech.sportsapp.other.Constants.MAP_ZOOM
 import ee.taltech.sportsapp.other.Constants.POLYLINE_COLOR
+import ee.taltech.sportsapp.other.Constants.POLYLINE_COLOR_FAST
+import ee.taltech.sportsapp.other.Constants.POLYLINE_COLOR_SLOW
 import ee.taltech.sportsapp.other.Constants.POLYLINE_WIDTH
 import ee.taltech.sportsapp.other.TrackingUtility
+import ee.taltech.sportsapp.other.TrackingUtility.getSpeedBetweenLocations
 import ee.taltech.sportsapp.other.TrackingUtility.trySendingLocationData
 import ee.taltech.sportsapp.services.Polyline
 import ee.taltech.sportsapp.services.TrackingService
@@ -112,9 +117,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLon
     private fun addCheckpoint() {
         if (pathPoints.isNotEmpty()) {
             val lastLatLng = pathPoints.last().last()
-            checkPoints.add(lastLatLng)
+            checkPoints.add(lastLatLng.latlng)
             map.addMarker(MarkerOptions()
-                .position(lastLatLng)
+                .position(lastLatLng.latlng)
                 .icon(BitmapDescriptorFactory
                     .defaultMarker(BitmapDescriptorFactory.HUE_BLUE)))
             metersOnNewCP = TrackingService.travelledMeters
@@ -139,7 +144,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLon
     private fun updateCPDirect() {
         val lastLatLng = pathPoints.last().last()
         val lastCPLatLng = checkPoints.last()
-        val CPDirect = TrackingUtility.getDistanceBetweenLocations(lastLatLng, lastCPLatLng).toInt()
+        val CPDirect = TrackingUtility.getDistanceBetweenLocations(lastLatLng.latlng, lastCPLatLng).toInt()
         val textviewValue = TrackingUtility.metersToKilometers(CPDirect)
         textViewDirectFromCP.text = textviewValue
     }
@@ -148,7 +153,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLon
         if (wpExists) {
             val lastLatLng = pathPoints.last().last()
             val lastWPLatLng = wayPoint.position
-            val WPDirect = TrackingUtility.getDistanceBetweenLocations(lastLatLng, lastWPLatLng).toInt()
+            val WPDirect = TrackingUtility.getDistanceBetweenLocations(lastLatLng.latlng, lastWPLatLng).toInt()
             val textviewValue = TrackingUtility.metersToKilometers(WPDirect)
             textViewDirectFromWP.text = textviewValue
         }
@@ -224,7 +229,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLon
         if(pathPoints.isNotEmpty() && pathPoints.last().isNotEmpty()) {
             map.animateCamera(
                 CameraUpdateFactory.newLatLngZoom(
-                    pathPoints.last().last(),
+                    pathPoints.last().last().latlng,
                     MAP_ZOOM
                 )
             )
@@ -232,7 +237,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLon
     }
 
     private fun addAllPolylines() {
-        for(polyline in pathPoints) {
+        for(polylinewithtime in pathPoints) {
+            val polyline = ArrayList<LatLng>()
+            for (element in polylinewithtime) {
+                polyline.add(element.latlng)
+            }
+
             val polylineOptions = PolylineOptions()
                 .color(POLYLINE_COLOR)
                 .width(POLYLINE_WIDTH)
@@ -245,11 +255,33 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLon
         if(pathPoints.isNotEmpty() && pathPoints.last().size > 1) {
             val preLastLatLng = pathPoints.last()[pathPoints.last().size - 2]
             val lastLatLng = pathPoints.last().last()
+
+            val polylineSpeed = getSpeedBetweenLocations(preLastLatLng, lastLatLng)
+            Log.d(logtag, "Polylinespeed: $polylineSpeed")
+            var slowSpeed = 3.0
+            var fastSpeed = 6.0
+
+            if(Constants.EXERCISE_TYPE == "Walking") {
+                slowSpeed = 1.5
+                fastSpeed = 4.5
+            } else if(Constants.EXERCISE_TYPE == "Cycling") {
+                slowSpeed = 20.0
+                fastSpeed = 30.0
+            }
+            var polylineColor = POLYLINE_COLOR
+            if(polylineSpeed < slowSpeed) {
+                Log.d(logtag, "slowline")
+                polylineColor = POLYLINE_COLOR_SLOW
+            } else if(polylineSpeed > fastSpeed) {
+                Log.d(logtag, "fastline")
+                polylineColor = POLYLINE_COLOR_FAST
+            }
+
             val polylineOptions = PolylineOptions()
-                .color(POLYLINE_COLOR)
+                .color(polylineColor)
                 .width(POLYLINE_WIDTH)
-                .add(preLastLatLng)
-                .add(lastLatLng)
+                .add(preLastLatLng.latlng)
+                .add(lastLatLng.latlng)
             map.addPolyline(polylineOptions)
         }
     }

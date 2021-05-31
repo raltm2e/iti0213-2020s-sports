@@ -9,6 +9,7 @@ import com.android.volley.RequestQueue
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
 import com.google.android.gms.maps.model.LatLng
+import ee.taltech.sportsapp.models.LatLngWithTime
 import org.json.JSONObject
 import java.time.LocalDateTime
 import java.util.concurrent.TimeUnit
@@ -37,7 +38,6 @@ object TrackingUtility {
 
     fun trySendingLocationData(context: Context, location: Location, locationType: String) {
         if(isOnline(context) && !wasOffline) {
-            Log.d(loggingTag, "Online")
             sendLocationData(location, locationType, Volley.newRequestQueue(context), LocalDateTime.now().toString())
         } else if(isOnline(context) && wasOffline) {
             Log.d(loggingTag, "Online, was offline")
@@ -134,6 +134,12 @@ object TrackingUtility {
                 "${if(minutes<10) "0" else ""}$minutes:" +
                 "${if(seconds<10) "0" else ""}$seconds:" +
                 "${if(milliseconds<10) "0" else ""}$milliseconds"
+    }
+
+    fun getSpeedBetweenLocations(latlng1: LatLngWithTime, latlng2: LatLngWithTime): Float {
+        val distance = getDistanceBetweenLocations(latlng1.latlng, latlng2.latlng)
+        val timeInSeconds = (latlng2.time - latlng1.time) / 1000
+        return distance / timeInSeconds
     }
 
     fun getDistanceBetweenLocations(latlng1: LatLng, latlng2: LatLng): Float {

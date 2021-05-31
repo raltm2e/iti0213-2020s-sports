@@ -30,6 +30,7 @@ import ee.taltech.sportsapp.MapsActivity
 import ee.taltech.sportsapp.R
 import ee.taltech.sportsapp.di.ServiceModule
 import ee.taltech.sportsapp.models.GpsSession
+import ee.taltech.sportsapp.models.LatLngWithTime
 import ee.taltech.sportsapp.other.Constants
 import ee.taltech.sportsapp.other.Constants.ACTION_SHOW_TRACKING_FRAGMENT
 import ee.taltech.sportsapp.other.Constants.ACTION_START_OR_RESUME_SERVICE
@@ -51,7 +52,7 @@ import org.json.JSONObject
 import java.time.LocalDate
 import java.time.LocalDateTime
 
-typealias Polyline = MutableList<LatLng>
+typealias Polyline = MutableList<LatLngWithTime>
 typealias Polylines = MutableList<Polyline>
 
 class TrackingService : LifecycleService() {
@@ -60,9 +61,6 @@ class TrackingService : LifecycleService() {
     private lateinit var gpsSession: GpsSession
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     private val timeRunInSeconds = MutableLiveData<Long>()
-    private var unsentLocations = ArrayList<Location>()
-    private var unsentLocationsTimeStamps = HashMap<Location, String>()
-    private var wasOffline = false
 
     lateinit var baseNotificationBuilder: NotificationCompat.Builder
     lateinit var curNotificationBuilder: NotificationCompat.Builder
@@ -116,6 +114,7 @@ class TrackingService : LifecycleService() {
     private var isTimerEnabled = false
     private var lapTime = 0L
     private var timeRun = 0L
+    private var smallTimeRunInSeconds = 0L
     private var timeStarted = 0L
     private var lastSecondTimestamp = 0L
 
@@ -233,8 +232,8 @@ class TrackingService : LifecycleService() {
             val previousLocation = Location("")
 
             if (previousLatLng != null) {
-                previousLocation.latitude = previousLatLng.latitude
-                previousLocation.longitude = previousLatLng.longitude
+                previousLocation.latitude = previousLatLng.latlng.latitude
+                previousLocation.longitude = previousLatLng.latlng.longitude
             }
 
             val smallDistance = previousLocation.distanceTo(thisLocation)
@@ -258,8 +257,10 @@ class TrackingService : LifecycleService() {
     private fun addPathPoint(location: Location?) {
         location?.let {
             val pos = LatLng(location.latitude, location.longitude)
+            val time = System.currentTimeMillis()
+            val latLngWithTime = LatLngWithTime(pos, time)
             pathPoints.value?.apply {
-                last().add(pos)
+                last().add(latLngWithTime)
                 pathPoints.postValue(this)
             }
             increaseDistance(pos)
