@@ -68,7 +68,7 @@ class TrackingService : LifecycleService() {
     companion object {
         val timeRunInMillis = MutableLiveData<Long>()
         val isTracking = MutableLiveData<Boolean>()
-        val pathPoints = MutableLiveData<Polylines>()
+        var pathPoints = MutableLiveData<Polylines>()
         var travelledMeters = 0.0
         var avgPace = 0.0
     }
@@ -78,6 +78,24 @@ class TrackingService : LifecycleService() {
         pathPoints.postValue(mutableListOf())
         timeRunInSeconds.postValue(0L)
         timeRunInMillis.postValue(0L)
+    }
+
+    private fun resetValues() {
+        isTracking.postValue(false)
+        timeRunInSeconds.postValue(0L)
+        timeRunInMillis.postValue(0L)
+        lapTime = 0L
+        timeRun = 0L
+        lastSecondTimestamp = 0L
+        pathPoints = MutableLiveData<Polylines>()
+        travelledMeters = 0.0
+        avgPace = 0.0
+        val intent = Intent(this, MapsActivity::class.java).also {
+            it.action = "Reset"
+        }
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        Log.d(loggingTag, "Starting activity for reset")
+        startActivity(intent)
     }
 
     override fun onCreate() {
@@ -114,7 +132,6 @@ class TrackingService : LifecycleService() {
     private var isTimerEnabled = false
     private var lapTime = 0L
     private var timeRun = 0L
-    private var smallTimeRunInSeconds = 0L
     private var timeStarted = 0L
     private var lastSecondTimestamp = 0L
 
@@ -144,7 +161,7 @@ class TrackingService : LifecycleService() {
     }
 
     private fun endSession() {
-
+        resetValues()
     }
 
     private fun updateNotificationTrackingState(isTracking: Boolean) {

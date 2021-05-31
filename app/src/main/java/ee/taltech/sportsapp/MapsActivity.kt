@@ -54,6 +54,18 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLon
 
     private var curTimeMillis = 0L
 
+    private fun resetValues() {
+        pathPoints = mutableListOf()
+        checkPoints = ArrayList()
+        metersOnNewCP = 0.0
+        if (wpExists) {
+            wayPoint.isVisible = false
+        }
+        wpExists = false
+        wpPressed = false
+        curTimeMillis = 0L
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -165,8 +177,19 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLon
         }
     }
 
+    private fun resetMap() {
+        Log.d(logtag, "Resetting values")
+        resetValues()
+        Log.d(logtag, "Resetting map")
+        map.clear()
+        Log.d(logtag, "All has been reset")
+    }
+
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
+        if(intent?.action == "Reset") {
+            resetMap()
+        }
         navigateToTrackingFragmentIfNeeded(intent)
     }
 
