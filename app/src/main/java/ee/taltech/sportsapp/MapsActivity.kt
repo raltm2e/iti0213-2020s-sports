@@ -18,11 +18,17 @@ import ee.taltech.sportsapp.other.Constants
 import ee.taltech.sportsapp.other.Constants.ACTION_SHOW_TRACKING_FRAGMENT
 import ee.taltech.sportsapp.other.Constants.ACTION_START_OR_RESUME_SERVICE
 import ee.taltech.sportsapp.other.Constants.ACTION_STOP_SERVICE
+import ee.taltech.sportsapp.other.Constants.CYCLING_FAST
+import ee.taltech.sportsapp.other.Constants.CYCLING_SLOW
 import ee.taltech.sportsapp.other.Constants.MAP_ZOOM
 import ee.taltech.sportsapp.other.Constants.POLYLINE_COLOR
 import ee.taltech.sportsapp.other.Constants.POLYLINE_COLOR_FAST
 import ee.taltech.sportsapp.other.Constants.POLYLINE_COLOR_SLOW
 import ee.taltech.sportsapp.other.Constants.POLYLINE_WIDTH
+import ee.taltech.sportsapp.other.Constants.RUNNING_FAST
+import ee.taltech.sportsapp.other.Constants.RUNNING_SLOW
+import ee.taltech.sportsapp.other.Constants.WALKING_FAST
+import ee.taltech.sportsapp.other.Constants.WALKING_SLOW
 import ee.taltech.sportsapp.other.TrackingUtility
 import ee.taltech.sportsapp.other.TrackingUtility.getSpeedBetweenLocations
 import ee.taltech.sportsapp.other.TrackingUtility.trySendingLocationData
@@ -258,15 +264,15 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLon
 
             val polylineSpeed = getSpeedBetweenLocations(preLastLatLng, lastLatLng)
             Log.d(logtag, "Polylinespeed: $polylineSpeed")
-            var slowSpeed = 3.0
-            var fastSpeed = 6.0
+            var slowSpeed = RUNNING_SLOW
+            var fastSpeed = RUNNING_FAST
 
             if(Constants.EXERCISE_TYPE == "Walking") {
-                slowSpeed = 1.5
-                fastSpeed = 4.5
+                slowSpeed = WALKING_SLOW
+                fastSpeed = WALKING_FAST
             } else if(Constants.EXERCISE_TYPE == "Cycling") {
-                slowSpeed = 20.0
-                fastSpeed = 30.0
+                slowSpeed = CYCLING_SLOW
+                fastSpeed = CYCLING_FAST
             }
             var polylineColor = POLYLINE_COLOR
             if(polylineSpeed < slowSpeed) {

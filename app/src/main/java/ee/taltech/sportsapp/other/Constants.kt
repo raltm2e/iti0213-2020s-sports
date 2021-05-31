@@ -14,6 +14,13 @@ object Constants {
     var DATA_SYNC_INTERVAL = "ON RECEIVE"
     var EXERCISE_TYPE = "Running"
 
+    const val RUNNING_SLOW = 3.0
+    const val RUNNING_FAST = 6.0
+    const val WALKING_SLOW = 1.5
+    const val WALKING_FAST = 4.5
+    const val CYCLING_SLOW = 20.0
+    const val CYCLING_FAST = 30.0
+
     const val BASEURL = "https://sportmap.akaver.com/api/v1.0/"
 
     const val POLYLINE_COLOR = Color.CYAN
