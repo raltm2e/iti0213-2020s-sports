@@ -15,9 +15,9 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import ee.taltech.sportsapp.databinding.ActivityMapsBinding
-import ee.taltech.sportsapp.other.Constants.ACTION_PAUSE_SERVICE
 import ee.taltech.sportsapp.other.Constants.ACTION_SHOW_TRACKING_FRAGMENT
 import ee.taltech.sportsapp.other.Constants.ACTION_START_OR_RESUME_SERVICE
+import ee.taltech.sportsapp.other.Constants.ACTION_STOP_SERVICE
 import ee.taltech.sportsapp.other.Constants.MAP_ZOOM
 import ee.taltech.sportsapp.other.Constants.POLYLINE_COLOR
 import ee.taltech.sportsapp.other.Constants.POLYLINE_WIDTH
@@ -31,7 +31,6 @@ import kotlin.math.roundToInt
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLongClickListener {
 
     private var logtag = "MapsActivity"
-
     private lateinit var map: GoogleMap
     private lateinit var binding: ActivityMapsBinding
 
@@ -206,10 +205,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLon
 
     private fun toggleRun() {
         if(isTracking) {
-            Toast.makeText(this, "Paused", Toast.LENGTH_SHORT).show()
-            sendCommandToService(ACTION_PAUSE_SERVICE)
+            Toast.makeText(this, "Stopped", Toast.LENGTH_SHORT).show()
+            sendCommandToService(ACTION_STOP_SERVICE)
         } else {
-            Toast.makeText(this, "Started", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Started training", Toast.LENGTH_SHORT).show()
             sendCommandToService(ACTION_START_OR_RESUME_SERVICE)
         }
     }
@@ -269,7 +268,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLon
         }
     }
 
-
     /**
      * Manipulates the map once available.
      * This callback is triggered when the map is ready to be used.
@@ -281,10 +279,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLon
      */
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
-
         // Add a marker in Sydney and move the camera
         val estonia = LatLng(59.0, 26.0)
-        //map.addMarker(MarkerOptions().position(estonia).title("Marker in Estonia"))
         map.moveCamera(CameraUpdateFactory.newLatLng(estonia))
         map.setOnMapLongClickListener(this)
     }

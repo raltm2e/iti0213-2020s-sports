@@ -31,9 +31,9 @@ import ee.taltech.sportsapp.R
 import ee.taltech.sportsapp.di.ServiceModule
 import ee.taltech.sportsapp.models.GpsSession
 import ee.taltech.sportsapp.other.Constants
-import ee.taltech.sportsapp.other.Constants.ACTION_PAUSE_SERVICE
 import ee.taltech.sportsapp.other.Constants.ACTION_SHOW_TRACKING_FRAGMENT
 import ee.taltech.sportsapp.other.Constants.ACTION_START_OR_RESUME_SERVICE
+import ee.taltech.sportsapp.other.Constants.ACTION_STOP_SERVICE
 import ee.taltech.sportsapp.other.Constants.FASTEST_LOCATION_INTERVAL
 import ee.taltech.sportsapp.other.Constants.LOCATION_UPDATE_INTERVAL
 import ee.taltech.sportsapp.other.Constants.NOTIFICATION_CHANNEL_ID
@@ -95,18 +95,12 @@ class TrackingService : LifecycleService() {
         intent?.let{
             when(it.action) {
                 ACTION_START_OR_RESUME_SERVICE -> {
-                    if(isFirstRun) {
-                        Log.d(loggingTag, "Started service")
-                        startForegroundService()
-                        isFirstRun = false
-                    } else {
-                        Log.d(loggingTag, "Resuming service...")
-                        startTimer()
-                    }
+                    Log.d(loggingTag, "Started service")
+                    startForegroundService()
                 }
-                ACTION_PAUSE_SERVICE -> {
+                ACTION_STOP_SERVICE -> {
                     Log.d(loggingTag, "Stopped service")
-                    pauseService()
+                    stopService()
                 }
                 else -> {
                     Log.d(loggingTag, "Nothing")
@@ -141,16 +135,21 @@ class TrackingService : LifecycleService() {
         }
     }
 
-    private fun pauseService() {
+    private fun stopService() {
         isTracking.postValue(false)
         isTimerEnabled = false
+        endSession()
+    }
+
+    private fun endSession() {
+
     }
 
     private fun updateNotificationTrackingState(isTracking: Boolean) {
-        val notificationActionText= if(isTracking) "Pause" else "Resume"
+        val notificationActionText= if(isTracking) "Stop" else "Resume"
         val pendingIntent = if(isTracking) {
             val pauseIntent = Intent(this, TrackingService::class.java).apply {
-                action = ACTION_PAUSE_SERVICE
+                action = ACTION_STOP_SERVICE
             }
             PendingIntent.getService(this, 1, pauseIntent, FLAG_UPDATE_CURRENT)
         } else {
@@ -222,7 +221,6 @@ class TrackingService : LifecycleService() {
     }
 
     private fun increaseDistance(lastpos: LatLng) {
-        Log.d(loggingTag, "Increasing distance")
         val thisLocation = Location("")
         thisLocation.latitude = lastpos.latitude
         thisLocation.longitude = lastpos.longitude
@@ -245,7 +243,6 @@ class TrackingService : LifecycleService() {
 
     private fun updateAvgPace() {
         // Minutes per 1 kilometer
-        Log.d(loggingTag, "Seconds: ${timeRunInSeconds.value!!}, TravelledKM: ${travelledMeters / 1000}")
         avgPace = (timeRunInSeconds.value!! / travelledMeters) * (1000 / 60) //Convert sec/m to min/km
         Log.d(loggingTag, "Updating pace: $avgPace min/km")
     }
@@ -268,7 +265,6 @@ class TrackingService : LifecycleService() {
             TrackingUtility.sendLocationData(location, "LOC", queue)
         }
     }
-
 
     private fun sendStartRequest() {
         val name = LocalDate.now().toString()
