@@ -27,7 +27,6 @@ import com.google.android.gms.location.LocationRequest.PRIORITY_HIGH_ACCURACY
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.maps.model.LatLng
 import ee.taltech.sportsapp.MapsActivity
-import ee.taltech.sportsapp.R
 import ee.taltech.sportsapp.di.ServiceModule
 import ee.taltech.sportsapp.models.GpsSession
 import ee.taltech.sportsapp.models.LatLngWithTime
@@ -44,13 +43,19 @@ import ee.taltech.sportsapp.other.Constants.TIMER_UPDATE_INTERVAL
 import ee.taltech.sportsapp.other.TrackingUtility
 import ee.taltech.sportsapp.other.TrackingUtility.trySendingLocationData
 import ee.taltech.sportsapp.other.Variables
+import ee.taltech.sportsapp.repository.GpsSessionRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.json.JSONObject
+import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.util.*
+import java.util.Locale.getDefault
+import kotlin.collections.ArrayList
+import kotlin.collections.HashMap
 
 typealias Polyline = MutableList<LatLngWithTime>
 typealias Polylines = MutableList<Polyline>
@@ -58,12 +63,13 @@ typealias Polylines = MutableList<Polyline>
 class TrackingService : LifecycleService() {
     private var loggingTag = "TRACKING"
 
-    private lateinit var gpsSession: GpsSession
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     private val timeRunInSeconds = MutableLiveData<Long>()
 
     lateinit var baseNotificationBuilder: NotificationCompat.Builder
     lateinit var curNotificationBuilder: NotificationCompat.Builder
+
+    lateinit var repository: GpsSessionRepository
 
     companion object {
         val timeRunInMillis = MutableLiveData<Long>()
@@ -161,11 +167,15 @@ class TrackingService : LifecycleService() {
     }
 
     private fun endSession() {
+        val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX", getDefault())
+        repository.add(GpsSession("Nimi", "Randomdesc", formatter.format(Date()), 0,
+            timeRunInSeconds.value!!.toDouble(), avgPace, travelledMeters, 0.0, 0.0, "", Variables.sessionId))
         resetValues()
+        repository.close()
     }
 
     private fun updateNotificationTrackingState(isTracking: Boolean) {
-        val notificationActionText= if(isTracking) "Stop" else "Resume"
+        Log.d(loggingTag, "Update notification tracking")
         val pendingIntent = if(isTracking) {
             val pauseIntent = Intent(this, TrackingService::class.java).apply {
                 action = ACTION_STOP_SERVICE
@@ -185,7 +195,6 @@ class TrackingService : LifecycleService() {
             set(curNotificationBuilder, ArrayList<NotificationCompat.Action>())
         }
         curNotificationBuilder = baseNotificationBuilder
-            .addAction(R.drawable.common_google_signin_btn_icon_dark_normal, notificationActionText, pendingIntent)
         notificationManager.notify(NOTIFICATION_ID, curNotificationBuilder.build())
     }
 
@@ -292,7 +301,6 @@ class TrackingService : LifecycleService() {
         val recordedAt = LocalDateTime.now().toString()
         val paceMin = 100
         val paceMax = 1000
-        gpsSession = GpsSession(name, description, recordedAt, paceMin, paceMax)
 
         val queue = Volley.newRequestQueue(this)
         val url = Constants.BASEURL + "GpsSessions"
@@ -304,15 +312,17 @@ class TrackingService : LifecycleService() {
         params["paceMin"] = paceMin
         params["paceMax"] = paceMax
         val jsonObject = JSONObject(params as Map<*, *>)
-        Log.d(loggingTag, jsonObject.toString(4))
+
+        Log.d(loggingTag, "Making start request")
 
         val request = object: JsonObjectRequest(
             Method.POST,url,jsonObject,
             { response ->
                 try {
+                    Log.d(loggingTag, "Making toast message")
                     Toast.makeText(this, "Started", Toast.LENGTH_SHORT).show()
-                    Variables.sessionId = response.getString("id")
                     Log.d(loggingTag, response.toString(4))
+                    Variables.sessionId = response.getString("id")
                 }catch (e:Exception){
                     Log.d(loggingTag, e.toString())
                 }
@@ -339,6 +349,7 @@ class TrackingService : LifecycleService() {
         startTimer()
         isTracking.postValue(true)
         sendStartRequest()
+        repository = GpsSessionRepository(this).open()
 
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         createNotificationChannel(notificationManager)

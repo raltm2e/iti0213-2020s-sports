@@ -40,7 +40,7 @@ import kotlin.math.roundToInt
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLongClickListener {
 
-    private var logtag = "MapsActivity"
+    private var logtag = "RobertMapsActivity"
     private lateinit var map: GoogleMap
     private lateinit var binding: ActivityMapsBinding
 
@@ -67,6 +67,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLon
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        Log.d(logtag, "OnCreate")
         super.onCreate(savedInstanceState)
 
         binding = ActivityMapsBinding.inflate(layoutInflater)
@@ -76,8 +77,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLon
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
-        addAllPolylines()
-        subscribeToObservers()
 
         navigateToTrackingFragmentIfNeeded(intent)
 
@@ -111,6 +110,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLon
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        Log.d(logtag, "onResume")
+        addAllPolylines()
+    }
+
     override fun onMapLongClick(latlng: LatLng) {
         if (wpPressed) {
             if (wpExists) {
@@ -133,6 +138,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLon
     }
 
     private fun addCheckpoint() {
+        Log.d(logtag, "AddCheckpoint")
         if (pathPoints.isNotEmpty()) {
             val lastLatLng = pathPoints.last().last()
             checkPoints.add(lastLatLng.latlng)
@@ -255,7 +261,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLon
     }
 
     private fun moveCameraToUser() {
-        if(pathPoints.isNotEmpty() && pathPoints.last().isNotEmpty() && this::map.isInitialized) {
+        Log.d(logtag, "moveCameraToUser")
+        if(pathPoints.isNotEmpty() && pathPoints.last().isNotEmpty()) {
+            Log.d(logtag, "animateCamera")
             map.animateCamera(
                 CameraUpdateFactory.newLatLngZoom(
                     pathPoints.last().last().latlng,
@@ -266,6 +274,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLon
     }
 
     private fun addAllPolylines() {
+        Log.d(logtag, "addAllPolyLines")
         for(polylinewithtime in pathPoints) {
             var polylineColor = POLYLINE_COLOR
             if (polylinewithtime.size > 1) {
@@ -283,13 +292,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLon
                 .color(polylineColor)
                 .width(POLYLINE_WIDTH)
                 .addAll(polyline)
-            while (!(this::map.isInitialized)) {
-                map.addPolyline(polylineOptions)
-            }
+            map.addPolyline(polylineOptions)
         }
     }
 
     private fun addLatestPolyline() {
+        Log.d(logtag, "addLatestPolyLine")
         if(pathPoints.isNotEmpty() && pathPoints.last().size > 1) {
             val preLastLatLng = pathPoints.last()[pathPoints.last().size - 2]
             val lastLatLng = pathPoints.last().last()
@@ -301,9 +309,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLon
                 .width(POLYLINE_WIDTH)
                 .add(preLastLatLng.latlng)
                 .add(lastLatLng.latlng)
-            while (!(this::map.isInitialized)) {
-                map.addPolyline(polylineOptions)
-            }
+            map.addPolyline(polylineOptions)
         }
     }
 
@@ -357,5 +363,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLon
         val estonia = LatLng(59.0, 26.0)
         map.moveCamera(CameraUpdateFactory.newLatLng(estonia))
         map.setOnMapLongClickListener(this)
+        subscribeToObservers()
     }
 }
