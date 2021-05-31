@@ -73,34 +73,41 @@ object TrackingUtility {
         } else {
             Log.d(loggingTag, "Not online....")
             wasOffline = true
-            if (locationType == "LOC") {
-                unsentLocations.add(location)
-                unsentLocationsTimeStamps[location] = LocalDateTime.now().toString()
-            } else if(locationType == "CP") {
-                unsentCPs.add(location)
-                unsentCPTimestamps[location] = LocalDateTime.now().toString()
-            } else if(locationType == "WP") {
-                unsentWPs.add(location)
-                unsentWPTimestamps[location] = LocalDateTime.now().toString()
-            } else {
-                Log.d(loggingTag, "Wrong locationtype")
+            when (locationType) {
+                "LOC" -> {
+                    unsentLocations.add(location)
+                    unsentLocationsTimeStamps[location] = LocalDateTime.now().toString()
+                }
+                "CP" -> {
+                    unsentCPs.add(location)
+                    unsentCPTimestamps[location] = LocalDateTime.now().toString()
+                }
+                "WP" -> {
+                    unsentWPs.add(location)
+                    unsentWPTimestamps[location] = LocalDateTime.now().toString()
+                }
+                else -> {
+                    Log.d(loggingTag, "Wrong locationtype")
+                }
             }
         }
     }
 
     private fun isOnline(context: Context): Boolean {
         val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        if (connectivityManager != null) {
-            val capabilities =
-                connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
-            if (capabilities != null) {
-                if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) {
+        val capabilities =
+            connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
+        if (capabilities != null) {
+            when {
+                capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> {
                     Log.i("Internet", "NetworkCapabilities.TRANSPORT_CELLULAR")
                     return true
-                } else if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
+                }
+                capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> {
                     Log.i("Internet", "NetworkCapabilities.TRANSPORT_WIFI")
                     return true
-                } else if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)) {
+                }
+                capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> {
                     Log.i("Internet", "NetworkCapabilities.TRANSPORT_ETHERNET")
                     return true
                 }
