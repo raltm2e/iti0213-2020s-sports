@@ -32,6 +32,10 @@ class RecyclerViewAdapterCustom(val context: Context, val repository: GpsSession
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val values = dataSet[position]
         holder.itemView.textViewName.text = values.name
+        holder.itemView.textViewDate.text = values.recordedAt
+        holder.itemView.textViewDescription.text = values.description
+        val distanceFormatted = "%.2f".format(values.distance)
+        holder.itemView.textViewDistance.text = distanceFormatted
     }
 
     override fun getItemCount(): Int {
