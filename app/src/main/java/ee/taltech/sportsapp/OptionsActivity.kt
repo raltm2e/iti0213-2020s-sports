@@ -89,14 +89,11 @@ class OptionsActivity : AppCompatActivity() {
                 id: Long
             ) {
                 when {
-                    parent?.getItemAtPosition(position).toString() == "5 sec" -> {
-                        Constants.DATA_SYNC_INTERVAL = 5000L
-                    }
-                    parent?.getItemAtPosition(position).toString() == "15 sec" -> {
-                        Constants.DATA_SYNC_INTERVAL = 15000L
+                    parent?.getItemAtPosition(position).toString() == "On receive" -> {
+                        Constants.DATA_SYNC_INTERVAL = "ON RECEIVE"
                     }
                     else -> {
-                        Constants.DATA_SYNC_INTERVAL = 30000L
+                        Constants.DATA_SYNC_INTERVAL = "30"
                     }
                 }
             }

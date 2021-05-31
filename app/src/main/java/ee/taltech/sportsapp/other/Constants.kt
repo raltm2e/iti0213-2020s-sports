@@ -11,7 +11,7 @@ object Constants {
 
     var LOCATION_UPDATE_INTERVAL = 5000L
     var FASTEST_LOCATION_INTERVAL = 3000L
-    var DATA_SYNC_INTERVAL = 5000L
+    var DATA_SYNC_INTERVAL = "ON RECEIVE"
     var EXERCISE_TYPE = "Running"
 
     const val BASEURL = "https://sportmap.akaver.com/api/v1.0/"

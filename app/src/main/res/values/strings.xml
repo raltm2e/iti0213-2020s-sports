@@ -6,8 +6,7 @@
     <string name="compass">Compass</string>
 
     <string-array name="syncintervals">
-        <item>5 sec</item>
-        <item>15 sec</item>
+        <item>On receive</item>
         <item>30 sec</item>
     </string-array>
     <string-array name="gpsintervals">
