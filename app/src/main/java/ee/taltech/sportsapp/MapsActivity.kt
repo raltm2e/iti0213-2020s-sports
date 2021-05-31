@@ -244,13 +244,20 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLon
 
     private fun addAllPolylines() {
         for(polylinewithtime in pathPoints) {
+            var polylineColor = POLYLINE_COLOR
+            if (polylinewithtime.size > 1) {
+                val lastLatLng = polylinewithtime.last()
+                val preLastLatLng = polylinewithtime[polylinewithtime.size - 2]
+                polylineColor = getPolylineColor(getSpeedBetweenLocations(preLastLatLng, lastLatLng))
+            }
+
             val polyline = ArrayList<LatLng>()
             for (element in polylinewithtime) {
                 polyline.add(element.latlng)
             }
 
             val polylineOptions = PolylineOptions()
-                .color(POLYLINE_COLOR)
+                .color(polylineColor)
                 .width(POLYLINE_WIDTH)
                 .addAll(polyline)
             map.addPolyline(polylineOptions)
@@ -262,26 +269,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLon
             val preLastLatLng = pathPoints.last()[pathPoints.last().size - 2]
             val lastLatLng = pathPoints.last().last()
 
-            val polylineSpeed = getSpeedBetweenLocations(preLastLatLng, lastLatLng)
-            Log.d(logtag, "Polylinespeed: $polylineSpeed")
-            var slowSpeed = RUNNING_SLOW
-            var fastSpeed = RUNNING_FAST
-
-            if(Constants.EXERCISE_TYPE == "Walking") {
-                slowSpeed = WALKING_SLOW
-                fastSpeed = WALKING_FAST
-            } else if(Constants.EXERCISE_TYPE == "Cycling") {
-                slowSpeed = CYCLING_SLOW
-                fastSpeed = CYCLING_FAST
-            }
-            var polylineColor = POLYLINE_COLOR
-            if(polylineSpeed < slowSpeed) {
-                Log.d(logtag, "slowline")
-                polylineColor = POLYLINE_COLOR_SLOW
-            } else if(polylineSpeed > fastSpeed) {
-                Log.d(logtag, "fastline")
-                polylineColor = POLYLINE_COLOR_FAST
-            }
+            val polylineColor = getPolylineColor(getSpeedBetweenLocations(preLastLatLng, lastLatLng))
 
             val polylineOptions = PolylineOptions()
                 .color(polylineColor)
@@ -290,6 +278,29 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLon
                 .add(lastLatLng.latlng)
             map.addPolyline(polylineOptions)
         }
+    }
+
+    private fun getPolylineColor(polylineSpeed: Float): Int {
+        Log.d(logtag, "Polylinespeed: $polylineSpeed")
+        var slowSpeed = RUNNING_SLOW
+        var fastSpeed = RUNNING_FAST
+
+        if(Constants.EXERCISE_TYPE == "Walking") {
+            slowSpeed = WALKING_SLOW
+            fastSpeed = WALKING_FAST
+        } else if(Constants.EXERCISE_TYPE == "Cycling") {
+            slowSpeed = CYCLING_SLOW
+            fastSpeed = CYCLING_FAST
+        }
+        var polylineColor = POLYLINE_COLOR
+        if(polylineSpeed < slowSpeed) {
+            Log.d(logtag, "slowline")
+            polylineColor = POLYLINE_COLOR_SLOW
+        } else if(polylineSpeed > fastSpeed) {
+            Log.d(logtag, "fastline")
+            polylineColor = POLYLINE_COLOR_FAST
+        }
+        return polylineColor
     }
 
     private fun sendCommandToService(action: String) =
