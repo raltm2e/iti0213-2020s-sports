@@ -60,7 +60,9 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.7'
 
     // Recyclerview
-    implementation 'androidx.recyclerview:recyclerview:1.1.0'
+//    implementation 'org.ogce:xpp3:1.1.6'
+//    implementation 'de.julielab:xercesImpl:2.11.0.1'
+//    implementation 'com.sun.xml.bind:jaxb-impl:2.1.3'
 
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'

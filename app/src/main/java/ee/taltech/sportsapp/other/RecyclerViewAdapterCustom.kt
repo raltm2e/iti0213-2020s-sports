@@ -2,6 +2,9 @@ package ee.taltech.sportsapp.other
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
+import android.util.Log
+import android.util.Xml
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,6 +18,12 @@ import ee.taltech.sportsapp.other.Constants.SESSION_DISPLAY
 import ee.taltech.sportsapp.other.Constants.UPDATE_MAP
 import ee.taltech.sportsapp.repository.GpsSessionRepository
 import kotlinx.android.synthetic.main.rowview.view.*
+import org.xmlpull.v1.XmlSerializer
+import java.io.File
+import java.io.FileWriter
+import java.io.StringWriter
+import java.time.LocalDateTime
+
 
 class RecyclerViewAdapterCustom(val context: Context, val repository: GpsSessionRepository): RecyclerView.Adapter<RecyclerViewAdapterCustom.ViewHolder>() {
 
@@ -53,10 +62,78 @@ class RecyclerViewAdapterCustom(val context: Context, val repository: GpsSession
             LocalBroadcastManager.getInstance(context).sendBroadcast(intent)
         }
 
-        holder.itemView.buttonExport.setOnClickListener {
+        // Generate XML https://github.com/dnowak/kotlin-xml-writer
+        val writer = Xml.newSerializer()
+        val gpx = writer.document {
+            element("gpx") {
+                attribute("version", "1.1")
+                attribute("created", LocalDateTime.now().toString())
+                element("metadata") {
+                    element("time", values.recordedAt)
+                }
+                element("trk") {
+                    element("name", values.name)
+                    for (element in values.latLng.last()) {
+                        element("trkpt") {
+                            attribute("lat", element.latlng.latitude.toString())
+                            attribute("lon", element.latlng.longitude.toString())
+                            element("ele", "0")
 
+                            element("time", element.time.toString())
+                        }
+                    }
+                }
+            }
+        }
+
+        val xmlString = writer.flush()
+        Log.d("Pede", xmlString.toString())
+
+        holder.itemView.buttonExport.setOnClickListener {
+            val emailIntent = Intent(Intent.ACTION_SEND)
+            emailIntent.putExtra(Intent.EXTRA_EMAIL, "raltm2e@gmail.com")
+            emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Map export")
+            emailIntent.putExtra(Intent.EXTRA_TEXT, "Map added to email")
+            val xmlVal = File.createTempFile("trackedmap", ".gpx", context.externalCacheDir)
+            val fileWriter = FileWriter(xmlVal)
+            fileWriter.write(gpx)
+            fileWriter.flush()
+            fileWriter.close()
+            emailIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(xmlVal))
+
+            context.startActivity(Intent.createChooser(emailIntent, "Choose app"))
         }
     }
+
+    fun XmlSerializer.document(docName: String = "UTF-8", xmlStringWriter: StringWriter = StringWriter(), init: XmlSerializer.() -> Unit): String {
+        startDocument(docName, true)
+        xmlStringWriter.buffer.setLength(0) //  refreshing string writer due to reuse
+        setOutput(xmlStringWriter)
+        init()
+        endDocument()
+        return xmlStringWriter.toString()
+    }
+
+    fun XmlSerializer.element(name: String, init: XmlSerializer.() -> Unit) {
+        startTag("", name)
+        init()
+        endTag("", name)
+    }
+
+    fun XmlSerializer.element(name: String,
+                              content: String,
+                              init: XmlSerializer.() -> Unit) {
+        startTag("", name)
+        init()
+        text(content)
+        endTag("", name)
+    }
+
+    fun XmlSerializer.element(name: String, content: String) =
+        element(name) { text(content) }
+
+    fun XmlSerializer.attribute(name: String, value: String) =
+        attribute("", name, value)
 
     override fun getItemCount(): Int {
         return dataSet.count()
