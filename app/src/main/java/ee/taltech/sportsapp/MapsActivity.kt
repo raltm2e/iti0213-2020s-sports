@@ -3,7 +3,6 @@ package ee.taltech.sportsapp
 import android.content.Intent
 import android.location.Location
 import android.os.Bundle
-import android.util.Log
 import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -197,10 +196,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLon
     private fun updateSpeed() {
         val formattedValue = "%.2f".format(TrackingService.avgPace).toFloat()
         val speed = (formattedValue / 60).pow(-1) // min/km to km/hour
-        Log.d(logtag, "Speed: $speed")
-        val textfieldValue = speed.toString() + "km/h"
-        textViewAverageSpeed1.text = textfieldValue
-        textViewAverageSpeed2.text = textfieldValue
+        val againFormattedValue = "%.2f".format(speed) + "km/h"
+        textViewAverageSpeed1.text = againFormattedValue
+        textViewAverageSpeed2.text = againFormattedValue
     }
 
     private fun toggleRun() {
