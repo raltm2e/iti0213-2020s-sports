@@ -7,7 +7,6 @@ import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
-import com.android.volley.toolbox.Volley
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -21,6 +20,7 @@ import ee.taltech.sportsapp.other.Constants.MAP_ZOOM
 import ee.taltech.sportsapp.other.Constants.POLYLINE_COLOR
 import ee.taltech.sportsapp.other.Constants.POLYLINE_WIDTH
 import ee.taltech.sportsapp.other.TrackingUtility
+import ee.taltech.sportsapp.other.TrackingUtility.trySendingLocationData
 import ee.taltech.sportsapp.services.Polyline
 import ee.taltech.sportsapp.services.TrackingService
 import kotlinx.android.synthetic.main.activity_maps.*
@@ -104,7 +104,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLon
             val locationNew = Location("")
             locationNew.latitude = latlng.latitude
             locationNew.longitude = latlng.longitude
-            TrackingUtility.sendLocationData(locationNew, "WP", Volley.newRequestQueue(this))
+            trySendingLocationData(this, locationNew, "WP")
         }
         wpPressed = false
     }
@@ -119,7 +119,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLon
                     .defaultMarker(BitmapDescriptorFactory.HUE_BLUE)))
             metersOnNewCP = TrackingService.travelledMeters
 
-            TrackingUtility.sendLocationData(TrackingUtility.getLastPathPoint(), "CP", Volley.newRequestQueue(this))
+            trySendingLocationData(this, TrackingUtility.getLastPathPoint(), "CP")
         }
     }
 

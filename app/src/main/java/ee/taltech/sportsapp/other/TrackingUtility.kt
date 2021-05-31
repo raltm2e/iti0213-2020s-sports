@@ -1,9 +1,13 @@
 package ee.taltech.sportsapp.other
 
+import android.content.Context
 import android.location.Location
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.util.Log
 import com.android.volley.RequestQueue
 import com.android.volley.toolbox.JsonObjectRequest
+import com.android.volley.toolbox.Volley
 import com.google.android.gms.maps.model.LatLng
 import org.json.JSONObject
 import java.time.LocalDateTime
@@ -15,12 +19,94 @@ object TrackingUtility {
     private var loggingTag = "TRACKING"
     private var lastPathPoint = Location("")
 
+    private var wasOffline = false
+    private var unsentLocations = ArrayList<Location>()
+    private var unsentLocationsTimeStamps = HashMap<Location, String>()
+    private var unsentCPs = ArrayList<Location>()
+    private var unsentCPTimestamps = HashMap<Location, String>()
+    private var unsentWPs = ArrayList<Location>()
+    private var unsentWPTimestamps = HashMap<Location, String>()
+
     fun setLastPathPoint(location: Location) {
         lastPathPoint = location
     }
 
     fun getLastPathPoint(): Location {
         return lastPathPoint
+    }
+
+    fun trySendingLocationData(context: Context, location: Location, locationType: String) {
+        if(isOnline(context) && !wasOffline) {
+            Log.d(loggingTag, "Online")
+            sendLocationData(location, locationType, Volley.newRequestQueue(context), LocalDateTime.now().toString())
+        } else if(isOnline(context) && wasOffline) {
+            Log.d(loggingTag, "Online, was offline")
+            if (locationType == "LOC") {
+                if(unsentLocations.isNotEmpty()) {
+                    for (locationElement in unsentLocations) {
+                        Log.d(loggingTag, "Sending unsentLocations")
+                        if (unsentLocationsTimeStamps.containsKey(locationElement)) {
+                            sendLocationData(locationElement, "LOC", Volley.newRequestQueue(context), unsentLocationsTimeStamps[locationElement]!!)
+                        }
+                    }
+                }
+            } else if (locationType == "CP") {
+                if(unsentCPs.isNotEmpty()) {
+                    for (locationElement in unsentCPs) {
+                        if (unsentCPTimestamps.containsKey(locationElement)) {
+                            sendLocationData(locationElement, "CP", Volley.newRequestQueue(context), unsentCPTimestamps[locationElement]!!)
+                        }
+                    }
+                }
+            } else if(locationType == "WP") {
+                if(unsentWPs.isNotEmpty()) {
+                    for (locationElement in unsentWPs) {
+                        if (unsentWPTimestamps.containsKey(locationElement)) {
+                            sendLocationData(locationElement, "WP", Volley.newRequestQueue(context), unsentWPTimestamps[locationElement]!!)
+                        }
+                    }
+                }
+            } else {
+                Log.d(loggingTag, "Wrong locationtype")
+            }
+            wasOffline = false
+        } else {
+            Log.d(loggingTag, "Not online....")
+            wasOffline = true
+            if (locationType == "LOC") {
+                unsentLocations.add(location)
+                unsentLocationsTimeStamps[location] = LocalDateTime.now().toString()
+            } else if(locationType == "CP") {
+                unsentCPs.add(location)
+                unsentCPTimestamps[location] = LocalDateTime.now().toString()
+            } else if(locationType == "WP") {
+                unsentWPs.add(location)
+                unsentWPTimestamps[location] = LocalDateTime.now().toString()
+            } else {
+                Log.d(loggingTag, "Wrong locationtype")
+            }
+        }
+    }
+
+    private fun isOnline(context: Context): Boolean {
+        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        if (connectivityManager != null) {
+            val capabilities =
+                connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
+            if (capabilities != null) {
+                if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) {
+                    Log.i("Internet", "NetworkCapabilities.TRANSPORT_CELLULAR")
+                    return true
+                } else if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
+                    Log.i("Internet", "NetworkCapabilities.TRANSPORT_WIFI")
+                    return true
+                } else if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)) {
+                    Log.i("Internet", "NetworkCapabilities.TRANSPORT_ETHERNET")
+                    return true
+                }
+            }
+        }
+        return false
     }
 
     fun getFormattedStopWatchTime(ms: Long, includeMillis: Boolean = false): String {
@@ -66,10 +152,8 @@ object TrackingUtility {
         return newText
     }
 
-    fun sendLocationData(location: Location, locationType: String, queue: RequestQueue) {
+    fun sendLocationData(location: Location, locationType: String, queue: RequestQueue, recordedAt: String) {
         val locationCode = locationCodes[locationType]
-        val recordedAt = LocalDateTime.now().toString()
-
         val url = Constants.BASEURL + "GpsLocations"
 
         val params = HashMap<String,Any>()
@@ -91,7 +175,7 @@ object TrackingUtility {
                     Log.d(loggingTag, e.toString())
                 }
             }, {
-                Log.d(loggingTag, "Error in request")
+                Log.d(loggingTag, "Error in request hue")
             })
 
         {

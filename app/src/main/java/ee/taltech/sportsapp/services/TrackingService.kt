@@ -41,6 +41,7 @@ import ee.taltech.sportsapp.other.Constants.NOTIFICATION_CHANNEL_NAME
 import ee.taltech.sportsapp.other.Constants.NOTIFICATION_ID
 import ee.taltech.sportsapp.other.Constants.TIMER_UPDATE_INTERVAL
 import ee.taltech.sportsapp.other.TrackingUtility
+import ee.taltech.sportsapp.other.TrackingUtility.trySendingLocationData
 import ee.taltech.sportsapp.other.Variables
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -55,11 +56,13 @@ typealias Polylines = MutableList<Polyline>
 
 class TrackingService : LifecycleService() {
     private var loggingTag = "TRACKING"
-    private var isFirstRun = true
 
     private lateinit var gpsSession: GpsSession
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     private val timeRunInSeconds = MutableLiveData<Long>()
+    private var unsentLocations = ArrayList<Location>()
+    private var unsentLocationsTimeStamps = HashMap<Location, String>()
+    private var wasOffline = false
 
     lateinit var baseNotificationBuilder: NotificationCompat.Builder
     lateinit var curNotificationBuilder: NotificationCompat.Builder
@@ -261,8 +264,7 @@ class TrackingService : LifecycleService() {
             }
             increaseDistance(pos)
 
-            val queue = Volley.newRequestQueue(this)
-            TrackingUtility.sendLocationData(location, "LOC", queue)
+            trySendingLocationData(this, location, "LOC")
         }
     }
 
