@@ -73,13 +73,25 @@ class RecyclerViewAdapterCustom(val context: Context, val repository: GpsSession
                     }
                     element("trk") {
                         element("name", values.name)
-                        for (element in values.latLng.last()) {
-                            element("trkpt") {
-                                attribute("lat", element.latlng.latitude.toString())
-                                attribute("lon", element.latlng.longitude.toString())
-                                element("ele", "0")
+                        element("trkseg") {
+                            for (element in values.latLng.last()) {
+                                element("trkpt") {
+                                    attribute("lat", element.latlng.latitude.toString())
+                                    attribute("lon", element.latlng.longitude.toString())
+                                    element("ele", "0")
 
-                                element("time", element.time.toString())
+                                    element("time", element.time.toString())
+                                }
+                            }
+                        }
+                        element("trkseg") {
+                            for (element in values.checkpoints) {
+                                element("trkpt") {
+                                    attribute("lat", element.latitude.toString())
+                                    attribute("lon", element.longitude.toString())
+                                        element("ele", "1")
+                                        element("time", values.recordedAt)
+                                }
                             }
                         }
                     }
