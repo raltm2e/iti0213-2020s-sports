@@ -2,8 +2,7 @@ package ee.taltech.sportsapp.other
 
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
-import android.util.Log
+import android.os.Environment
 import android.util.Xml
 import android.view.LayoutInflater
 import android.view.View
@@ -62,46 +61,45 @@ class RecyclerViewAdapterCustom(val context: Context, val repository: GpsSession
             LocalBroadcastManager.getInstance(context).sendBroadcast(intent)
         }
 
-        // Generate XML https://github.com/dnowak/kotlin-xml-writer
-        val writer = Xml.newSerializer()
-        val gpx = writer.document {
-            element("gpx") {
-                attribute("version", "1.1")
-                attribute("created", LocalDateTime.now().toString())
-                element("metadata") {
-                    element("time", values.recordedAt)
-                }
-                element("trk") {
-                    element("name", values.name)
-                    for (element in values.latLng.last()) {
-                        element("trkpt") {
-                            attribute("lat", element.latlng.latitude.toString())
-                            attribute("lon", element.latlng.longitude.toString())
-                            element("ele", "0")
+        holder.itemView.buttonExport.setOnClickListener {
+            // Generate XML https://github.com/dnowak/kotlin-xml-writer
+            val writer = Xml.newSerializer()
+            val gpx = writer.document {
+                element("gpx") {
+                    attribute("version", "1.1")
+                    attribute("created", LocalDateTime.now().toString())
+                    element("metadata") {
+                        element("time", values.recordedAt)
+                    }
+                    element("trk") {
+                        element("name", values.name)
+                        for (element in values.latLng.last()) {
+                            element("trkpt") {
+                                attribute("lat", element.latlng.latitude.toString())
+                                attribute("lon", element.latlng.longitude.toString())
+                                element("ele", "0")
 
-                            element("time", element.time.toString())
+                                element("time", element.time.toString())
+                            }
                         }
                     }
                 }
             }
-        }
 
-        val xmlString = writer.flush()
-        Log.d("Pede", xmlString.toString())
-
-        holder.itemView.buttonExport.setOnClickListener {
-            val emailIntent = Intent(Intent.ACTION_SEND)
-            emailIntent.putExtra(Intent.EXTRA_EMAIL, "raltm2e@gmail.com")
-            emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Map export")
-            emailIntent.putExtra(Intent.EXTRA_TEXT, "Map added to email")
-            val xmlVal = File.createTempFile("trackedmap", ".gpx", context.externalCacheDir)
-            val fileWriter = FileWriter(xmlVal)
-            fileWriter.write(gpx)
+            val dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)
+            val file = File(dir, "gpxsession" + values.id.toString() + ".xml")
+            val fileWriter = FileWriter(file)
+            fileWriter.append(gpx)
             fileWriter.flush()
             fileWriter.close()
-            emailIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(xmlVal))
 
-            context.startActivity(Intent.createChooser(emailIntent, "Choose app"))
+//            val xmlFile = "gpxsession" + values.id.toString() + ".xml"
+//            val fileOutputStreamOs = context.openFileOutput(xmlFile, Context.MODE_PRIVATE)
+//            val xmlString = writer.flush()
+//            Log.d("xml", xmlString.toString())
+//            Log.d("xml", gpx + "GPX")
+//            fileOutputStreamOs.write(gpx.toByteArray())
+//            fileOutputStreamOs.close()
         }
     }
 
