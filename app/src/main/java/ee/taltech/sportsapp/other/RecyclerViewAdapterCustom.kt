@@ -92,14 +92,6 @@ class RecyclerViewAdapterCustom(val context: Context, val repository: GpsSession
             fileWriter.append(gpx)
             fileWriter.flush()
             fileWriter.close()
-
-//            val xmlFile = "gpxsession" + values.id.toString() + ".xml"
-//            val fileOutputStreamOs = context.openFileOutput(xmlFile, Context.MODE_PRIVATE)
-//            val xmlString = writer.flush()
-//            Log.d("xml", xmlString.toString())
-//            Log.d("xml", gpx + "GPX")
-//            fileOutputStreamOs.write(gpx.toByteArray())
-//            fileOutputStreamOs.close()
         }
     }
 
