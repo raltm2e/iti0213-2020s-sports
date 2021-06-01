@@ -93,7 +93,11 @@ class TrackingService : LifecycleService() {
         lapTime = 0L
         timeRun = 0L
         lastSecondTimestamp = 0L
-        pathPoints = MutableLiveData<Polylines>()
+
+        pathPoints.value?.clear()
+        pathPoints.postValue(mutableListOf())
+
+        MapsActivity.checkPoints.clear()
         travelledMeters = 0.0
         avgPace = 0.0
         val intent = Intent(this, MapsActivity::class.java).also {
@@ -169,7 +173,7 @@ class TrackingService : LifecycleService() {
     private fun endSession() {
         val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX", getDefault())
         repository.add(GpsSession("Nimi", "Randomdesc", formatter.format(Date()), 0,
-            timeRunInSeconds.value!!.toDouble(), avgPace, travelledMeters, 0.0, 0.0, "", Variables.sessionId, pathPoints.value!!))
+            timeRunInSeconds.value!!.toDouble(), avgPace, travelledMeters, 0.0, 0.0, "", Variables.sessionId, pathPoints.value!!, MapsActivity.checkPoints))
         resetValues()
         repository.close()
     }

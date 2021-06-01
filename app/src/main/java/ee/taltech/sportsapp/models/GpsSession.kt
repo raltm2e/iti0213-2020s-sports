@@ -1,5 +1,6 @@
 package ee.taltech.sportsapp.models
 
+import com.google.android.gms.maps.model.LatLng
 import ee.taltech.sportsapp.services.Polylines
 
 data class GpsSession(
@@ -14,6 +15,7 @@ data class GpsSession(
     var descent: Double,
     var appUserId: String,
     var gpsSessionId: String,
-    var latLng: Polylines
+    var latLng: Polylines,
+    var checkpoints: List<LatLng>
 ) {
 }

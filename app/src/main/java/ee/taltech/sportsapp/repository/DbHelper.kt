@@ -8,7 +8,7 @@ import android.util.Log
 class DbHelper(context: Context): SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
     companion object {
         const val DATABASE_NAME = "app.db"
-        const val DATABASE_VERSION = 2
+        const val DATABASE_VERSION = 3
 
         const val TABLE_SESSIONS = "SESSIONS"
         const val SESSION_ID = "_id"
@@ -23,6 +23,7 @@ class DbHelper(context: Context): SQLiteOpenHelper(context, DATABASE_NAME, null,
         const val SESSION_APPUSERID = "userid"
         const val SESSION_GPSSESSIONID = "gpsSessionId"
         const val SESSION_LATLNG = "latlng"
+        const val SESSION_CHECKPOINTS = "checkPoints"
 
         const val SQL_CREATE_TABLES =
             "create table $TABLE_SESSIONS (" +
@@ -37,6 +38,7 @@ class DbHelper(context: Context): SQLiteOpenHelper(context, DATABASE_NAME, null,
                     "$SESSION_DESCENT REAL NOT NULL, " +
                     "$SESSION_GPSSESSIONID TEXT NOT NULL, " +
                     "$SESSION_LATLNG TEXT NOT NULL, " +
+                    "$SESSION_CHECKPOINTS TEXT NOT NULL, " +
                     "$SESSION_APPUSERID TEXT NOT NULL); "
 
         const val SQL_DELETE_TABLES =

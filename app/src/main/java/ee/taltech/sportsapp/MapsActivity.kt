@@ -61,13 +61,17 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLon
 
     private var isTracking = false
     private var pathPoints = mutableListOf<Polyline>()
-    private var checkPoints = ArrayList<LatLng>()
+
     private var metersOnNewCP: Double = 0.0
     private lateinit var wayPoint: Marker
     private var wpExists = false
     private var wpPressed = false
 
     private var curTimeMillis = 0L
+
+    companion object {
+        var checkPoints = ArrayList<LatLng>()
+    }
 
     fun drawMapFromSession() {
         val lastList = sessionToDraw.latLng.last()
