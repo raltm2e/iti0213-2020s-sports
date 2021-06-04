@@ -316,6 +316,7 @@ class TrackingService : LifecycleService() {
         params["paceMin"] = paceMin
         params["paceMax"] = paceMax
         val jsonObject = JSONObject(params as Map<*, *>)
+        Log.d(loggingTag, jsonObject.toString(4))
 
         Log.d(loggingTag, "Making start request")
 
