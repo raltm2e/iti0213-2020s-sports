@@ -22,7 +22,6 @@ import com.google.gson.Gson
 import ee.taltech.sportsapp.databinding.ActivityMapsBinding
 import ee.taltech.sportsapp.models.GpsSession
 import ee.taltech.sportsapp.other.Constants
-import ee.taltech.sportsapp.other.Constants.ACTION_SHOW_TRACKING_FRAGMENT
 import ee.taltech.sportsapp.other.Constants.ACTION_START_OR_RESUME_SERVICE
 import ee.taltech.sportsapp.other.Constants.ACTION_STOP_SERVICE
 import ee.taltech.sportsapp.other.Constants.CYCLING_FAST
@@ -122,8 +121,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLon
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
-
-        navigateToTrackingFragmentIfNeeded(intent)
 
         // Moving between activities
         val compassButton = findViewById<Button>(R.id.buttonCompass)
@@ -241,7 +238,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLon
         if(intent?.action == "Reset") {
             resetMap()
         }
-        navigateToTrackingFragmentIfNeeded(intent)
     }
 
     private fun subscribeToObservers() {
@@ -386,12 +382,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLon
             it.action = action
             this.startService(it)
         }
-
-    private fun navigateToTrackingFragmentIfNeeded(intent: Intent?) {
-        if(intent?.action == ACTION_SHOW_TRACKING_FRAGMENT) {
-            startActivity(intent)
-        }
-    }
 
     /**
      * Manipulates the map once available.

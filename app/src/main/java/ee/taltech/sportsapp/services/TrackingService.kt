@@ -31,7 +31,6 @@ import ee.taltech.sportsapp.di.ServiceModule
 import ee.taltech.sportsapp.models.GpsSession
 import ee.taltech.sportsapp.models.LatLngWithTime
 import ee.taltech.sportsapp.other.Constants
-import ee.taltech.sportsapp.other.Constants.ACTION_SHOW_TRACKING_FRAGMENT
 import ee.taltech.sportsapp.other.Constants.ACTION_START_OR_RESUME_SERVICE
 import ee.taltech.sportsapp.other.Constants.ACTION_STOP_SERVICE
 import ee.taltech.sportsapp.other.Constants.FASTEST_LOCATION_INTERVAL
@@ -373,9 +372,7 @@ class TrackingService : LifecycleService() {
     private fun getMainActivityPendingIntent() = PendingIntent.getActivity(
         this,
         0,
-        Intent(this, MapsActivity::class.java).also {
-            it.action = ACTION_SHOW_TRACKING_FRAGMENT
-        },
+        Intent(this, MapsActivity::class.java),
         FLAG_UPDATE_CURRENT
     )
 
