@@ -41,7 +41,6 @@ import ee.taltech.sportsapp.other.Constants.WALKING_SLOW
 import ee.taltech.sportsapp.other.TrackingUtility
 import ee.taltech.sportsapp.other.TrackingUtility.getSpeedBetweenLocations
 import ee.taltech.sportsapp.other.TrackingUtility.trySendingLocationData
-import ee.taltech.sportsapp.repository.GpsSessionRepository
 import ee.taltech.sportsapp.services.Polyline
 import ee.taltech.sportsapp.services.TrackingService
 import kotlinx.android.synthetic.main.activity_maps.*
@@ -53,7 +52,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLon
     private var logtag = "RobertMapsActivity"
     private lateinit var map: GoogleMap
     private lateinit var binding: ActivityMapsBinding
-    private lateinit var repository: GpsSessionRepository
     private var showPreviousSession = false
     private var gson = Gson()
     private lateinit var sessionToDraw: GpsSession
@@ -65,6 +63,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLon
     private lateinit var wayPoint: Marker
     private var wpExists = false
     private var wpPressed = false
+    private var drawedCheckpoints = ArrayList<LatLng>()
 
     private var curTimeMillis = 0L
 
@@ -145,6 +144,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLon
         val toggleCPButton = findViewById<Button>(R.id.buttonAddCP)
         toggleCPButton.setOnClickListener {
             addCheckpoint()
+            drawCheckpoints()
         }
         val toggleWPButton = findViewById<Button>(R.id.buttonAddWP)
         toggleWPButton.setOnClickListener {
@@ -184,13 +184,22 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapLon
         if (pathPoints.isNotEmpty()) {
             val lastLatLng = pathPoints.last().last()
             checkPoints.add(lastLatLng.latlng)
-            map.addMarker(MarkerOptions()
-                .position(lastLatLng.latlng)
-                .icon(BitmapDescriptorFactory
-                    .defaultMarker(BitmapDescriptorFactory.HUE_BLUE)))
-            metersOnNewCP = TrackingService.travelledMeters
 
+            metersOnNewCP = TrackingService.travelledMeters
             trySendingLocationData(this, TrackingUtility.getLastPathPoint(), "CP")
+        }
+    }
+
+    private fun drawCheckpoints() {
+        Log.d(logtag, "Draw checkpoints")
+        for (checkpoint in checkPoints) {
+            if (checkpoint !in drawedCheckpoints) {
+                drawedCheckpoints.add(checkpoint)
+                map.addMarker(MarkerOptions()
+                    .position(checkpoint)
+                    .icon(BitmapDescriptorFactory
+                        .defaultMarker(BitmapDescriptorFactory.HUE_BLUE)))
+            }
         }
     }
 
