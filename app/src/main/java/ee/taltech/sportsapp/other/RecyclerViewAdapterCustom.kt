@@ -3,6 +3,7 @@ package ee.taltech.sportsapp.other
 import android.content.Context
 import android.content.Intent
 import android.os.Environment
+import android.util.Log
 import android.util.Xml
 import android.view.LayoutInflater
 import android.view.View
@@ -84,22 +85,23 @@ class RecyclerViewAdapterCustom(val context: Context, val repository: GpsSession
                                 }
                             }
                         }
-                        element("trkseg") {
-                            for (element in values.checkpoints) {
-                                element("trkpt") {
-                                    attribute("lat", element.latitude.toString())
-                                    attribute("lon", element.longitude.toString())
-                                        element("ele", "1")
-                                        element("time", values.recordedAt)
-                                }
-                            }
+                    }
+                    Log.d("xml", "creating CPs")
+                    Log.d("xml", values.checkpoints.toString())
+                    for (element in values.checkpoints) {
+                        Log.d("xml", element.toString())
+                        element("wpt") {
+                            attribute("lat", element.latitude.toString())
+                            attribute("lon", element.longitude.toString())
+                            element("ele", "0")
+                            element("name", "CP")
                         }
                     }
                 }
             }
 
             val dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)
-            val file = File(dir, "gpxsession" + values.id.toString() + ".xml")
+            val file = File(dir, "gpxsessionv2_" + values.id.toString() + ".xml")
             val fileWriter = FileWriter(file)
             fileWriter.append(gpx)
             fileWriter.flush()
